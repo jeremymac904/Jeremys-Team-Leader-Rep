@@ -6,11 +6,11 @@ is why you can read and edit them without being a programmer.
 
 This format follows the Hermes Agent skill convention. Hermes loads these **directly from
 this repository** via `skills.external_dirs`, so a `git pull` updates them and editing one
-takes effect on the next run. Nothing is copied. See [../docs/hermes.md](../docs/hermes.md).
+takes effect on the next run. Nothing is copied. See [../docs/hermes.md](../../docs/hermes.md).
 
 Confirm they loaded:
 ```bash
-bash scripts/hermes.sh skills list
+hermes skills list
 ```
 
 ## Team leadership (14)
@@ -35,7 +35,7 @@ bash scripts/hermes.sh skills list
 ## Mortgage documents (8)
 
 These run **locally**. Borrower documents are never sent to a cloud model while Local
-Privacy Mode is on. See [../docs/local-ai/privacy-mode.md](../docs/local-ai/privacy-mode.md).
+Privacy Mode is on. See [../docs/local-ai/privacy-mode.md](../../docs/local-ai/privacy-mode.md).
 
 | Skill | Use it when |
 |---|---|
@@ -74,8 +74,8 @@ that the agent is not the underwriter.
 ## Writing your own
 
 ```bash
-mkdir -p skills/team-leadership/tl-my-skill
-cp skills/team-leadership/tl-morning-brief/SKILL.md skills/team-leadership/tl-my-skill/SKILL.md
+mkdir -p .hermes/skills/team-leadership/tl-my-skill
+cp .hermes/skills/team-leadership/tl-morning-brief/SKILL.md skills/team-leadership/tl-my-skill/SKILL.md
 # edit the frontmatter name to match the directory, then each section
 python3 scripts/validate.py
 ```

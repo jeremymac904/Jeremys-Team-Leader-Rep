@@ -3,7 +3,7 @@
 > Scripts are rails, not a cage. Learn the structure, then say it like a human.
 
 Practicing a script by discussing it does not build the skill. Saying it out loud, under
-mild pressure, does. That is what the [`tl-role-play`](../../skills/team-leadership/tl-role-play/SKILL.md)
+mild pressure, does. That is what the [`tl-role-play`](../../.hermes/skills/team-leadership/tl-role-play/SKILL.md)
 skill is for — the agent plays the other side and scores you afterward.
 
 ## The structure every script shares

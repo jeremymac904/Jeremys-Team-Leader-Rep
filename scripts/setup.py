@@ -8,12 +8,12 @@ leaves your machine and nothing is sent anywhere.
     python3 scripts/setup.py --demo       # fictional sample team, no questions
     python3 scripts/setup.py --check      # report what is configured, change nothing
 
-Files it creates (all gitignored):
-    config/team-leader.yaml       who you are, your goals, your permissions
-    config/coaching.yaml          how you coach
-    config/integrations.yaml      what is connected
-    team-data/team.yaml           your roster  (private)
-    agent/team-leader/config.yaml the Hermes profile, with your real path filled in
+Files it creates (all gitignored — none of this is ever uploaded anywhere):
+    config/team-leader.yaml   who you are, your goals, how you lead
+    config/coaching.yaml      how you coach
+    config/marketing.yaml     marketing defaults and per-LO profiles
+    config/integrations.yaml  what is connected
+    team-data/team.yaml       your roster  (private)
 """
 
 from __future__ import annotations
@@ -33,10 +33,10 @@ TARGETS = [
      "how you run coaching and when to escalate"),
     (ROOT / "config/integrations.yaml", ROOT / "config/integrations.example.yaml",
      "which services are connected (none, by default)"),
+    (ROOT / "config/marketing.yaml", ROOT / "config/marketing.example.yaml",
+     "marketing defaults and per-Loan-Officer profiles"),
     (ROOT / "team-data/team.yaml", ROOT / "config/team.example.yaml",
      "your roster — PRIVATE, never committed"),
-    (ROOT / "agent/team-leader/config.yaml", ROOT / "agent/team-leader/config.example.yaml",
-     "the Hermes Agent profile"),
 ]
 
 # Interview questions -> dotted path in team-leader.yaml, with a default.
@@ -182,16 +182,15 @@ def apply_answers(answers: dict) -> None:
     print(f"  personalized {relative(profile)}")
 
 
-def fill_repo_path() -> None:
-    """Replace ${REPO_PATH} in the Hermes profile with the real location."""
-    hermes = ROOT / "agent/team-leader/config.yaml"
-    if not hermes.exists():
-        return
-    text = hermes.read_text(encoding="utf-8")
-    if "${REPO_PATH}" not in text:
-        return
-    hermes.write_text(text.replace("${REPO_PATH}", str(ROOT)), encoding="utf-8")
-    print(f"  set repository path in {relative(hermes)}")
+def check_skills_trusted() -> bool:
+    """Report whether Hermes has been told to trust this project's skills."""
+    import subprocess
+    try:
+        out = subprocess.run(["hermes", "skills", "list"], cwd=ROOT,
+                             capture_output=True, text=True, timeout=90).stdout
+    except (OSError, subprocess.SubprocessError):
+        return False
+    return " local" in out and "0 hub-installed, 0 builtin, 0 local" not in out
 
 
 def ensure_team_data() -> None:
@@ -223,21 +222,31 @@ def main() -> int:
         print("\nTell me about you and your team:\n")
         apply_answers(interview())
 
-    fill_repo_path()
 
     print("""
-Done.
+Done. Your answers are saved on this computer only.
 
-  Your roster is a separate, private file:   team-data/team.yaml
-  Open it and replace the fictional Northstar team with your own.
-  It is gitignored, so it never reaches GitHub.
+  NEXT: put your real team in       team-data/team.yaml
+        (open it and replace the fictional Northstar team)
 
-Next:
-  python3 scripts/validate.py      check everything is well-formed
-  python3 scripts/privacy_scan.py  check nothing private is about to be committed
+        The two fields that matter most for each person:
+          experience_level  new | developing | established | top-producer
+          development_areas what they actually struggle with, specifically
+""")
 
-Then read docs/first-hour.md and ask your agent:
-  "Give me my Team Leader morning briefing."
+    if not check_skills_trusted():
+        print("""  ONE MORE STEP: Hermes has not been told to trust this folder's skills yet.
+
+        hermes skills trust
+
+        You should see "35 project skill(s) will load".
+""")
+
+    print("""  THEN: start your agent from inside this folder
+
+        hermes
+
+        and ask:  Give me my Team Leader morning briefing.
 """)
     return 0
 

@@ -17,6 +17,7 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
+SKILLS_DIR = ROOT / ".hermes" / "skills"
 sys.path.insert(0, str(ROOT / "scripts" / "lib"))
 sys.path.insert(0, str(ROOT / "scripts" / "local_ai"))
 
@@ -143,7 +144,7 @@ def test_skills():
                     "## Safety boundaries", "## Human approval requirements",
                     "## Related skills", "## What this skill must not assume"]
 
-    skills = sorted(ROOT.joinpath("skills").rglob("SKILL.md"))
+    skills = sorted(SKILLS_DIR.rglob("SKILL.md"))
     check("skills found", len(skills) >= 20, f"{len(skills)} found")
 
     for path in skills:
@@ -271,7 +272,7 @@ def test_marketing():
           compliance.get("approval_required_before_publishing") is True)
 
     # Marketing skills must reference shared knowledge rather than restating it.
-    skills = sorted((ROOT / "skills" / "marketing").glob("*/SKILL.md"))
+    skills = sorted((SKILLS_DIR / "marketing").glob("*/SKILL.md"))
     check("marketing skills present", len(skills) >= 10, str(len(skills)))
     for path in skills:
         body = path.read_text(encoding="utf-8")
@@ -314,7 +315,7 @@ def test_gitignore_protection():
 
     must_track = ["README.md", "local_data/README.md",
                   "examples/synthetic-documents/synthetic-paystub.pdf",
-                  "skills/mortgage-documents/paystub-review/SKILL.md"]
+                  ".hermes/skills/mortgage-documents/paystub-review/SKILL.md"]
     for rel in must_track:
         result = subprocess.run(["git", "check-ignore", "-q", rel], cwd=ROOT)
         check(f"tracked: {rel}", result.returncode != 0)

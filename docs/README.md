@@ -1,10 +1,13 @@
 # Documentation
 
+**New here? Read [START HERE](../START-HERE-LOAN-FACTORY-TEAM-LEADERS.md) first.**
+
 ## Start here
 
 | Guide | For |
 |---|---|
-| [first-hour.md](first-hour.md) | Getting value in the first hour |
+| [../START-HERE-LOAN-FACTORY-TEAM-LEADERS.md](../START-HERE-LOAN-FACTORY-TEAM-LEADERS.md) | **The five-step walkthrough** |
+| [first-hour.md](first-hour.md) | Going deeper after the walkthrough |
 | [hermes.md](hermes.md) | What Hermes is and how this repository configures it |
 | [configuration.md](configuration.md) | Every setting explained |
 | [privacy.md](privacy.md) | What stays private and how |

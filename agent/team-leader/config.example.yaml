@@ -11,21 +11,19 @@
 # ---------------------------------------------------------------------------
 
 # ---------------------------------------------------------------------------
-# SKILLS — loaded straight from this repository, no copying
+# SKILLS
 #
-# `skills.external_dirs` is Hermes's supported mechanism for reading skills
-# from outside ~/.hermes/skills/. We point it at this repository's skills/
-# folder, which means:
+# You do NOT need to configure anything here.
 #
-#   * git pull updates your skills instantly — nothing to re-copy
-#   * editing a SKILL.md here takes effect on the next Hermes run
-#   * external dirs are READ-ONLY to Hermes: when the agent creates a new
-#     skill it writes to hermes-home/skills/, never back into your git repo
-#   * if a name collides, the local skill wins over the external one
+# The Team Leader skills live at .hermes/skills/ in this repository, which is
+# Hermes's own project-local skills location. When you run Hermes from inside
+# this folder it finds them automatically — you just approve them once:
+#
+#     hermes skills trust
+#
+# Hermes will tell you if they are not yet trusted. Nothing is copied, so a
+# `git pull` updates your skills immediately.
 # ---------------------------------------------------------------------------
-skills:
-  external_dirs:
-    - "${REPO_PATH}/skills"
 
 # Leave empty to use whatever model you configured during `hermes setup`.
 model: {}

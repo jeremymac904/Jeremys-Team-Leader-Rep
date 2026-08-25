@@ -1,4 +1,8 @@
 #!/usr/bin/env bash
+# NOTE: Team Leaders do NOT need this script.
+# Install Hermes the official way instead — see START-HERE-LOAN-FACTORY-TEAM-LEADERS.md
+# This installs a SEPARATE isolated copy for testing this package.
+
 # ---------------------------------------------------------------------------
 # Install a FRESH, ISOLATED Hermes Agent for this repository.
 #

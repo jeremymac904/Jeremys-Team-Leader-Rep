@@ -30,13 +30,14 @@ sys.path.insert(0, str(Path(__file__).resolve().parent / "lib"))
 from miniyaml import loads_subset  # noqa: E402
 
 ROOT = Path(__file__).resolve().parent.parent
+SKILLS_DIR = ROOT / ".hermes" / "skills"
 
 REQUIRED_FILES = [
     "README.md", "LICENSE", ".gitignore", ".env.example", "AGENTS.md",
     "CHANGELOG.md", "CONTRIBUTING.md", "SECURITY.md", "PROJECT_STATUS.md",
     "agent/team-leader/SOUL.template.md",
     "agent/team-leader/config.example.yaml",
-    "skills/README.md",
+    ".hermes/skills/README.md",
     "config/local-ai.example.yaml",
     "local-ai/models.manifest.yaml",
     "local-ai/VALIDATION.md",
@@ -139,9 +140,9 @@ def _required():
 @check("skills are well-formed")
 def _skills():
     problems = []
-    paths = sorted((ROOT / "skills").rglob("SKILL.md"))
+    paths = sorted(SKILLS_DIR.rglob("SKILL.md"))
     if not paths:
-        return ["no skills found in skills/"]
+        return ["no skills found in .hermes/skills/"]
     for path in paths:
         skill = path.parent
         body = path.read_text(encoding="utf-8")
@@ -174,7 +175,7 @@ def _automations():
     if catalog.get("defaults", {}).get("active") is not False:
         problems.append("defaults.active must be false")
 
-    known_skills = {p.parent.name for p in (ROOT / "skills").rglob("SKILL.md")}
+    known_skills = {p.parent.name for p in SKILLS_DIR.rglob("SKILL.md")}
     seen = set()
     for item in items:
         ident = item.get("id", "<no id>")
@@ -306,7 +307,7 @@ def _skill_routing():
     block = body[start:body.index("}", start)]
 
     referenced = re.findall(r'"([a-z0-9-]+-review|[a-z0-9-]+-comparison)"', block)
-    installed = {p.parent.name for p in (ROOT / "skills").rglob("SKILL.md")}
+    installed = {p.parent.name for p in SKILLS_DIR.rglob("SKILL.md")}
     problems = [f"review.py routes to {name!r} but no such skill exists"
                 for name in sorted(set(referenced)) if name not in installed]
 

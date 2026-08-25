@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+# NOTE: Team Leaders do NOT need this script. Just run `hermes` from this folder.
+# This runs the isolated testing copy installed by install_hermes.sh.
+
 # ---------------------------------------------------------------------------
 # Run THIS repository's Hermes Agent.
 #

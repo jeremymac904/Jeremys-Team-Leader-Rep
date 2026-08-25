@@ -7,7 +7,7 @@ This directory is the agent itself.
 | `AGENTS.md` | The agent's operating instructions — identity, how it answers, coaching behavior, hard boundaries. **This is the file to edit if you want the agent to behave differently.** |
 | `config.example.yaml` | The Hermes profile template. Copy to `config.yaml` (gitignored) and fill in your path, or run `python3 scripts/setup.py`. |
 
-Its capabilities live one level up in [`../../skills/`](../../skills/) as Hermes skills.
+Its capabilities live one level up in [`../../.hermes/skills/`](../../.hermes/skills/) as Hermes skills.
 
 ## Making it yours
 
@@ -19,7 +19,7 @@ Three levers, in the order most people should use them:
 2. **Instructions** — edit `AGENTS.md`. Change tone, add a rule, add a boundary.
    Plain English; no code.
 3. **Skills** — add a directory under `../skills/` with a `SKILL.md`. See
-   [`../../skills/README.md`](../../skills/README.md).
+   [`../../.hermes/skills/README.md`](../../.hermes/skills/README.md).
 
 ## Running it
 

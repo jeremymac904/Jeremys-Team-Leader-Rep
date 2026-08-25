@@ -33,7 +33,7 @@ from miniyaml import load_file  # noqa: E402
 
 ROOT = Path(__file__).resolve().parent.parent
 HERMES_HOME = ROOT / "hermes-home"
-SKILLS_SRC = ROOT / "skills"
+SKILLS_SRC = ROOT / ".hermes" / "skills"
 SOUL_TEMPLATE = ROOT / "agent" / "team-leader" / "SOUL.template.md"
 PROFILE_TEMPLATE = ROOT / "agent" / "team-leader" / "config.example.yaml"
 
@@ -115,7 +115,7 @@ def main() -> int:
         print(f"  {'stale' if args.check else 'wrote'}  hermes-home/config.yaml")
 
     count = sum(1 for _ in SKILLS_SRC.rglob("SKILL.md"))
-    print(f"  linked {count} skills from skills/ (read in place via "
+    print(f"  linked {count} skills from .hermes/skills/ (read in place via "
           f"skills.external_dirs — not copied)")
 
     if args.check:

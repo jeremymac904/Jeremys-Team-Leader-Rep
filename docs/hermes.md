@@ -1,118 +1,125 @@
-# Hermes and this repository
+# How Hermes and this package fit together
+
+## The short version
+
+**Hermes is the program. This repository is the customization.**
+
+You install Hermes the normal, official way. You download this folder. You run
+Hermes from inside the folder. Hermes finds the Team Leader skills and uses them.
+
+Nothing is copied, bundled, or built. There is no custom application.
 
 ## What Hermes is
 
-[Hermes Agent](https://github.com/NousResearch/hermes-agent) is an open-source AI agent
-from Nous Research (MIT licensed) that runs on your own computer. It can drive different
-AI models — cloud models like Claude or GPT, or a local model on your machine.
+[Hermes Agent](https://github.com/NousResearch/hermes-agent) is an open-source AI
+agent from Nous Research (MIT licensed) that runs on your own computer. It can
+drive different AI models — cloud models like Claude or GPT, or a local model.
 
-This repository does not replace or fork Hermes. It **configures** it.
-
-## The isolated install
+Install it the official way:
 
 ```bash
-bash scripts/install_hermes.sh
+curl -fsSL https://raw.githubusercontent.com/NousResearch/hermes-agent/main/scripts/install.sh | bash
+hermes setup
 ```
 
-This pulls a fresh Hermes clone into `vendor/hermes-agent/` with its own Python
-environment in `vendor/hermes-venv/`. Both are gitignored.
+`hermes setup` walks you through choosing an AI provider. Use whichever you
+already have. This package does not require or prefer any particular one.
 
-**If you already run Hermes, it is not touched.** Isolation comes from `HERMES_HOME`,
-which Hermes reads as the single source of truth for its home directory.
-`scripts/hermes.sh` sets it to this repository's `hermes-home/` on every run, so this
-agent's config, identity, skills, and session history are entirely separate from
-`~/.hermes`.
+## How Hermes finds the Team Leader skills
+
+Hermes has a built-in feature for exactly this: **project-local skills**.
+
+When you start Hermes from inside a Git repository, it looks for skills in
+`.hermes/skills/` at the repository root. This package puts its 35 skills
+there.
+
+For safety, Hermes will not load skills from a folder you have not approved.
+The first time, it tells you:
 
 ```
-vendor/hermes-agent/   fresh upstream clone
-vendor/hermes-venv/    its own Python environment
-hermes-home/           this repository's HERMES_HOME
+◆ 35 project skill(s) found in <folder> but not loaded —
+  run `hermes skills trust` to enable them.
 ```
 
-## How the agent is assembled
-
-| Piece | File | How Hermes finds it |
-|---|---|---|
-| Identity | `hermes-home/SOUL.md` | Hermes reads `$HERMES_HOME/SOUL.md` into the system prompt |
-| Instructions | `AGENTS.md` at the repo root | Hermes auto-injects a project-root `AGENTS.md` |
-| Skills | `skills/` | `skills.external_dirs` in the profile |
-| Settings | `hermes-home/config.yaml` | Hermes reads `$HERMES_HOME/config.yaml` |
-
-`SOUL.md` and `config.yaml` are generated from templates in `agent/team-leader/`:
+So you approve it once:
 
 ```bash
-python3 scripts/sync_agent.py
+cd ~/Documents/Jeremys-Team-Leader-Rep
+hermes skills trust
 ```
 
-Re-run that after editing the SOUL template or the profile. **Editing a skill needs no
-sync** — skills are read in place.
-
-## Skills load from the repository
-
-`skills.external_dirs` is Hermes's supported mechanism for reading skills from outside
-`~/.hermes/skills/`. The profile points it at this repository's `skills/` folder:
-
-```yaml
-skills:
-  external_dirs:
-    - "/path/to/Jeremys-Team-Leader-Rep/skills"
+```
+Trusted: <your home>/Documents/Jeremys-Team-Leader-Rep
+35 project skill(s) will load in sessions started inside this repo
 ```
 
-This means:
+That is the entire integration. Because Hermes reads the folder directly:
 
-- `git pull` updates your skills immediately — nothing to copy
-- Editing a `SKILL.md` takes effect on the next run
-- External directories are **read-only** to Hermes: when the agent creates a skill of its
-  own it writes to `hermes-home/skills/`, never back into your git repository
-- If a name collides, your local skill wins over the repository one
+- A `git pull` updates your skills immediately — nothing to reinstall
+- Editing a skill takes effect the next time you start Hermes
+- Project skills take precedence over same-named skills in your own profile
+- Your other Hermes projects are unaffected
 
-Confirm they loaded:
-```bash
-bash scripts/hermes.sh skills list
-```
+## Why you must start Hermes from inside the folder
 
-Skills are organized by directory, and the directory becomes the category:
-`skills/team-leadership/` and `skills/mortgage-documents/`.
-
-## Preserving your customizations
-
-Your configuration lives in gitignored files, so `git pull` never overwrites it:
-
-- `config/*.yaml`, `team-data/`, `hermes-home/config.yaml`
-
-To customize a skill that ships here, either edit it directly — and accept that a pull may
-conflict — or copy it to `hermes-home/skills/` under the same name, where it takes
-precedence and is never touched by a pull.
-
-## The safety profile
-
-| Setting | Value | Effect |
-|---|---|---|
-| `approvals.mode` | `manual` | Every action-taking tool call is confirmed by you |
-| `approvals.cron_mode` | `deny` | The agent cannot create or activate schedules |
-| `security.redact_secrets` | `true` | Secrets are stripped from model context |
-| `privacy.redact_pii` | `true` | User IDs hashed, phone numbers stripped |
-| `agent.disabled_toolsets` | terminal, browser, code_execution, discord, discord_admin, cronjob, computer_use | No shell, no browsing, no messaging |
-| `mcp_servers` | `{}` | No external connectors — honest, because none ship |
-
-`file` and `skills` stay enabled so the agent can read your configuration and use its
-skills.
-
-`scripts/validate.py` checks these values against the installed Hermes and fails on a
-typo — a misspelled toolset name is silently ignored by Hermes, which would turn a safety
-setting into a no-op.
-
-## Using a local model
+Project-local skills are resolved from your **current directory**. Starting
+Hermes somewhere else means it is not in this project, so the Team Leader skills
+do not load.
 
 ```bash
-python3 scripts/local_ai/server.py hermes-config
+cd ~/Documents/Jeremys-Team-Leader-Rep   # ← this matters
+hermes
 ```
 
-Prints the exact settings. Local inference uses the supported `custom` provider pointed at
-`127.0.0.1`. See [local-ai/](local-ai/README.md).
+If you see 0 project skills, this is almost always why.
+
+Check any time:
+
+```bash
+hermes skills list
+```
+
+## How Hermes knows how to behave
+
+Two files at the root of this package:
+
+| File | What it does |
+|---|---|
+| [`AGENTS.md`](../AGENTS.md) | The agent's operating instructions. Hermes automatically reads a project-root `AGENTS.md` as context. |
+| `config/*.yaml` + `team-data/team.yaml` | Your identity, team, goals, and coaching style — created by `scripts/setup.py` and gitignored |
+
+`AGENTS.md` is plain English. If you want the agent to behave differently — a
+different tone, an extra rule, a boundary — edit that file. No code involved.
+
+## Your configuration stays yours
+
+| Gitignored (private) | Committed (public) |
+|---|---|
+| `config/*.yaml` | `config/*.example.yaml` |
+| `team-data/` | The skills, frameworks, and templates |
+| `local_data/` | Fictional sample data |
+
+A `git pull` never overwrites your configuration.
+
+To customize a skill that ships here without fighting future updates, copy it
+into your own Hermes profile skills directory under the same name — profile
+skills are yours and are never touched by a `git pull`.
 
 ## Other AI tools
 
-`AGENTS.md` is a plain Markdown instruction file, and the skills are plain Markdown too.
-Claude Code, Codex, and other assistants read them as context. Point them at
-`PROJECT_STATUS.md` to pick up the architecture and what is tested.
+`AGENTS.md` and the skills are plain Markdown. Claude Code, Codex, and similar
+assistants read them as context. Point them at
+[`PROJECT_STATUS.md`](../PROJECT_STATUS.md) for the architecture and what is
+tested.
+
+## Optional: running a model locally
+
+Separate and not required. See [local-ai/](local-ai/README.md).
+
+## For maintainers: isolated testing
+
+`scripts/install_hermes.sh` and `scripts/hermes.sh` install a **separate** copy
+of Hermes inside `vendor/` with its own `HERMES_HOME`, for testing this package
+without touching a real Hermes installation.
+
+**Team Leaders do not need these.** Use the official installer above.

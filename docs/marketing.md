@@ -9,16 +9,16 @@ marketing — built so the advice is specific to the person rather than generic.
 
 | Skill | Use it when |
 |---|---|
-| [`lo-marketing-coach`](../skills/marketing/lo-marketing-coach/SKILL.md) | Building or reviewing a Loan Officer's marketing plan |
-| [`content-calendar-builder`](../skills/marketing/content-calendar-builder/SKILL.md) | Turning strategy into a dated calendar |
-| [`realtor-marketing-coach`](../skills/marketing/realtor-marketing-coach/SKILL.md) | Realtor-facing content and partner value plans |
-| [`video-script-builder`](../skills/marketing/video-script-builder/SKILL.md) | Short-form scripts, including no-camera formats |
-| [`content-repurposing`](../skills/marketing/content-repurposing/SKILL.md) | One training into weeks of content |
-| [`campaign-builder`](../skills/marketing/campaign-builder/SKILL.md) | A program, workshop, or seasonal campaign |
-| [`social-post-review`](../skills/marketing/social-post-review/SKILL.md) | Checking a draft before it publishes |
-| [`brand-voice-builder`](../skills/marketing/brand-voice-builder/SKILL.md) | An LO whose content sounds generic |
-| [`marketing-accountability`](../skills/marketing/marketing-accountability/SKILL.md) | Who is actually executing their plan |
-| [`marketing-performance-review`](../skills/marketing/marketing-performance-review/SKILL.md) | Is any of this working? |
+| [`lo-marketing-coach`](../.hermes/skills/marketing/lo-marketing-coach/SKILL.md) | Building or reviewing a Loan Officer's marketing plan |
+| [`content-calendar-builder`](../.hermes/skills/marketing/content-calendar-builder/SKILL.md) | Turning strategy into a dated calendar |
+| [`realtor-marketing-coach`](../.hermes/skills/marketing/realtor-marketing-coach/SKILL.md) | Realtor-facing content and partner value plans |
+| [`video-script-builder`](../.hermes/skills/marketing/video-script-builder/SKILL.md) | Short-form scripts, including no-camera formats |
+| [`content-repurposing`](../.hermes/skills/marketing/content-repurposing/SKILL.md) | One training into weeks of content |
+| [`campaign-builder`](../.hermes/skills/marketing/campaign-builder/SKILL.md) | A program, workshop, or seasonal campaign |
+| [`social-post-review`](../.hermes/skills/marketing/social-post-review/SKILL.md) | Checking a draft before it publishes |
+| [`brand-voice-builder`](../.hermes/skills/marketing/brand-voice-builder/SKILL.md) | An LO whose content sounds generic |
+| [`marketing-accountability`](../.hermes/skills/marketing/marketing-accountability/SKILL.md) | Who is actually executing their plan |
+| [`marketing-performance-review`](../.hermes/skills/marketing/marketing-performance-review/SKILL.md) | Is any of this working? |
 
 ## Just ask
 
