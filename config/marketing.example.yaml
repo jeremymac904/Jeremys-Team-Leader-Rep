@@ -1,0 +1,144 @@
+# ---------------------------------------------------------------------------
+# MARKETING CONFIGURATION
+#
+# Copy to config/marketing.yaml (gitignored) and edit.
+#
+# Nothing here is mandatory. Every field has a sensible default, and the
+# marketing skills work with only the team section filled in. Per-Loan-Officer
+# profiles are what make the coaching specific rather than generic, so they are
+# worth doing — but you can add them one person at a time.
+# ---------------------------------------------------------------------------
+schema_version: 1
+kind: marketing-config
+
+# --- Team-wide defaults -----------------------------------------------------
+team:
+  # Where your team actually publishes. Skills will not plan for a platform
+  # nobody uses.
+  platforms: ["Facebook", "Instagram", "LinkedIn"]
+
+  # Default content mix. Percentages, should total 100.
+  # See knowledge/marketing/content-strategy.md for why the direct ask is small.
+  content_mix:
+    buyer_education: 40
+    scenario_problem_solving: 25
+    realtor_partner_value: 20
+    investor_specialty: 10
+    direct_conversion: 5
+
+  default_cadence:
+    posts_per_week: 4
+    story_sequences_per_week: 3
+    realtor_touches_per_week: 1
+    followup_blocks_per_week: 1
+
+  # Topics the team owns. Drives campaign and content suggestions.
+  content_pillars:
+    - "First-time buyer education"
+    - "Self-employed and non-traditional income"
+    - "VA and military buyers"
+    - "Realtor deal-structure support"
+    - "Investor and DSCR basics"
+
+  marketing_goals:
+    - "One team market-update video per week"
+    - "One Realtor education session per month"
+    - "Every LO posting at least twice a week"
+
+# --- Brand ------------------------------------------------------------------
+brand:
+  company: "Loan Factory"
+  # Voice defaults. Individual LOs may override below.
+  voice: "clear, practical, human, direct; confident without promising"
+  # Approved brand assets. The official Loan Factory logo ships in
+  # assets/branding/. Your own team assets go in assets/team/ (gitignored).
+  assets:
+    logo: "assets/branding/loan-factory-logo-transparent.png"
+    team_assets_dir: "assets/team"
+
+# --- Compliance -------------------------------------------------------------
+# Nothing is hardcoded. Required wording varies by company and state — set it
+# here and every generated piece uses it.
+compliance:
+  disclosure: >-
+    This is not a commitment to lend. All loans subject to approval.
+    Terms and conditions apply.
+  # Add whatever your company and states require.
+  additional_disclosures:
+    - "Equal Housing Lender"
+  # Whether generated content may include rate, APR, or payment figures.
+  # Keep false unless you have the full disclosure set and compliance sign-off.
+  allow_rate_content: false
+  # Who must approve before anything is published.
+  approval_required_before_publishing: true
+  review_contact: "your compliance contact or process"
+
+# --- Per-Loan-Officer marketing profiles ------------------------------------
+# `archetype` is the field that changes the coaching most. Options, explained in
+# knowledge/marketing/lo-marketing-profiles.md:
+#   no-audience | established-partners-no-content | camera-shy | strong-video
+#   writer | realtor-focused | consumer-direct | inconsistent
+#   needs-full-plan | has-content-needs-systems
+#
+# Everyone below is fictional.
+loan_officers:
+  - id: "lo-jordan-reyes"          # must match an id in team-data/team.yaml
+    archetype: "no-audience"
+    platforms: ["Instagram"]
+    comfort_with_video: "low"        # low | medium | high
+    preferred_format: "written"      # written | carousel | video | audio
+    primary_audience: "first-time buyers"
+    referral_partner_type: "none yet"
+    primary_programs: ["FHA", "Conventional"]
+    geographic_market: "Jacksonville, FL"
+    posting_frequency_target: 2
+    brand_voice: "warm, encouraging, explains things simply"
+    content_pillars:
+      - "First-time buyer basics"
+      - "What to do before house shopping"
+    marketing_goals:
+      - "Post twice a week for eight straight weeks"
+    notes: "Fictional. Starting from zero — consistency is the only goal for now."
+
+  - id: "lo-sam-okafor"
+    archetype: "realtor-focused"
+    platforms: ["Facebook", "Instagram"]
+    comfort_with_video: "medium"
+    preferred_format: "video"
+    primary_audience: "Realtors and their buyers"
+    referral_partner_type: "residential agents"
+    primary_programs: ["Conventional", "VA"]
+    geographic_market: "Jacksonville, FL metro"
+    posting_frequency_target: 3
+    brand_voice: "peer-to-peer with agents, direct, deal-focused"
+    # Override the team mix — a Realtor-focused LO needs far more partner content.
+    content_mix:
+      buyer_education: 25
+      scenario_problem_solving: 25
+      realtor_partner_value: 40
+      investor_specialty: 5
+      direct_conversion: 5
+    content_pillars:
+      - "Deal structure Realtors should understand"
+      - "Pre-approval quality"
+    marketing_goals:
+      - "One Realtor-facing piece per week"
+    notes: "Fictional. Strong partner base; content should make partners look good."
+
+  - id: "lo-priya-nakamura"
+    archetype: "has-content-needs-systems"
+    platforms: ["LinkedIn", "Instagram", "YouTube"]
+    comfort_with_video: "high"
+    preferred_format: "video"
+    primary_audience: "self-employed and investor buyers"
+    referral_partner_type: "CPAs and investor agents"
+    primary_programs: ["Bank statement", "DSCR", "Conventional"]
+    geographic_market: "Florida"
+    posting_frequency_target: 4
+    brand_voice: "technical, precise, respects the audience's intelligence"
+    content_pillars:
+      - "Self-employed income documentation"
+      - "DSCR fundamentals"
+    marketing_goals:
+      - "Turn one long video into a week of content"
+    notes: "Fictional. Producing steadily but not repurposing — biggest available win."

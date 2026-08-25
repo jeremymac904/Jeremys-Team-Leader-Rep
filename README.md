@@ -51,6 +51,15 @@ commands. Where this README mentions something technical, it explains it.
 - Referral partner review, including the agent who quietly stopped referring
 - Recruiting pipeline, interview prep, candidate comparison
 
+**Marketing coaching**
+- A 30-day marketing plan for a Loan Officer, matched to how they actually work
+- Content calendars with the hook and CTA already written
+- Realtor-facing content that earns partners instead of asking for business
+- Video scripts — including formats for Loan Officers who will not go on camera
+- One training turned into weeks of content
+- Campaigns around a loan program, with follow-up planned before launch
+- Draft review that catches a compliance problem before it publishes
+
 **Mortgage documents — processed locally**
 - Read a PDF, including a scanned one, entirely on your computer
 - Extract structured fields from paystubs, W2s, bank statements, purchase contracts,
@@ -160,6 +169,27 @@ Three levers, easiest first:
    rule, add a boundary.
 3. **Skills** — add a directory under `skills/` with a `SKILL.md`. See
    [`skills/README.md`](skills/README.md).
+
+## Marketing that is specific, not generic
+
+Ten marketing skills over a shared knowledge base. The difference from generic marketing
+advice is the **archetype**: each Loan Officer is classified — `camera-shy`,
+`realtor-focused`, `inconsistent`, `has-content-needs-systems`, and six more — and the
+coaching changes accordingly. Someone who stops posting after two weeks gets their target
+*cut*, not raised.
+
+```
+"Build a 30 day marketing plan for Jordan."
+"Turn one training into ten pieces of content."
+"Create a video script for a Loan Officer who hates being on camera."
+"Review this social media post and improve it."
+```
+
+Compliance guardrails apply to everything: no rate or payment figures without approved
+terms and disclosures, no guarantees, content labeled by exposure category, and configurable
+disclosure text rather than anything hardcoded. **The agent flags; it never publishes.**
+
+Read: **[docs/marketing.md](docs/marketing.md)**
 
 ## Local AI for loan documents
 

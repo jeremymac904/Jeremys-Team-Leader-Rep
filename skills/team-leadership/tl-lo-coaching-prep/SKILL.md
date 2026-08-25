@@ -91,6 +91,7 @@ With no scorecard, produce the structure and say which numbers the leader needs 
 Do not invent performance data about a real person.
 
 ## Related skills
+- `lo-marketing-coach` — invoke for the marketing portion of coaching
 - `tl-development-plan` — when a trigger has fired
 - `tl-role-play` — for the live drill
 - `tl-weekly-review` — surfaces who needs coaching

@@ -89,6 +89,7 @@ and say that is what you used.
 
 ## Related skills
 - `tl-training-plan` — chooses the training topic
+- `lo-marketing-coach` — for a marketing training segment
 - `tl-pipeline-review` — supplies the pipeline theme
 - `tl-role-play` — for the in-meeting drill
 

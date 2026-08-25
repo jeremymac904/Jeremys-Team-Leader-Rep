@@ -88,6 +88,7 @@ answer.
 
 ## Related skills
 - `tl-training-plan` — turns research into a session
+- `realtor-marketing-coach` — turns a guideline change into partner education
 - `purchase-contract-review`, `loan-estimate-review` — raise guideline questions
 - `local-loan-document-review` — for the document itself
 

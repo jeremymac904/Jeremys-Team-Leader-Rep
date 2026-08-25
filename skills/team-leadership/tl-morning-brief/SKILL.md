@@ -84,6 +84,7 @@ have, clearly scoped. Never fill gaps with plausible invented numbers.
 
 ## Related skills
 - `tl-pipeline-review` — supplies the file-level detail
+- `marketing-accountability` — surfaces marketing tasks and drop-off
 - `tl-weekly-review` — the weekly version of this
 - `tl-lo-coaching-prep` — when the brief surfaces a coaching need
 

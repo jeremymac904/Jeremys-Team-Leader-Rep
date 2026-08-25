@@ -86,6 +86,8 @@ If the leader has not set `marketing_goals`, propose a minimum sustainable caden
 (one piece per week) and say that is an assumption.
 
 ## Related skills
+- `content-calendar-builder` — the deeper scheduling version of this
+- `social-post-review` — checks drafts before publishing
 - `tl-partner-review` — partner value items
 - `tl-guideline-research` — sourced educational content
 

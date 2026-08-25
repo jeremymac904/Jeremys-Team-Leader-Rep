@@ -94,6 +94,7 @@ entire recommendation.
 
 ## Related skills
 - `tl-weekly-review` — surfaces automation candidates
+- the marketing automations in `automations/catalog.yaml`
 - every automation in `automations/catalog.yaml`
 
 ## What this skill must not assume

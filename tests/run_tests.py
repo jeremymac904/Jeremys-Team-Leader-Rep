@@ -224,6 +224,74 @@ def test_extraction():
               f"{len(result.full_text)} chars")
 
 
+# -------------------------------------------------------------- marketing
+def test_marketing():
+    from miniyaml import load_file
+
+    config = ROOT / "config" / "marketing.example.yaml"
+    profiles = ROOT / "knowledge" / "marketing" / "lo-marketing-profiles.md"
+    check("marketing config exists", config.exists())
+    check("marketing profiles knowledge exists", profiles.exists())
+    if not (config.exists() and profiles.exists()):
+        return
+
+    data = load_file(config)
+    text = profiles.read_text(encoding="utf-8")
+    documented = {line.strip()[len("`archetype:"):-1].strip()
+                  for line in text.splitlines()
+                  if line.strip().startswith("`archetype:") and line.strip().endswith("`")}
+    check("archetypes documented with slugs", len(documented) >= 10, str(len(documented)))
+
+    officers = data.get("loan_officers") or []
+    check("fictional LO profiles present", len(officers) >= 3, str(len(officers)))
+    for officer in officers:
+        check(f"{officer['id']}: archetype documented",
+              officer.get("archetype") in documented, str(officer.get("archetype")))
+
+    # The fields that actually change coaching must differ between profiles,
+    # otherwise the skills cannot produce differentiated output.
+    for field in ("archetype", "comfort_with_video", "primary_audience",
+                  "posting_frequency_target", "brand_voice"):
+        values = [str(o.get(field)) for o in officers]
+        check(f"profiles differ on {field}", len(set(values)) == len(values), str(values))
+
+    mixes = [("team", (data.get("team") or {}).get("content_mix"))]
+    mixes += [(o["id"], o.get("content_mix")) for o in officers if o.get("content_mix")]
+    for name, mix in mixes:
+        check(f"{name} content mix totals 100",
+              sum(v for v in mix.values() if isinstance(v, int)) == 100)
+
+    # Compliance must be configurable, never hardcoded.
+    compliance = data.get("compliance") or {}
+    check("disclosure text is configurable", bool(compliance.get("disclosure")))
+    check("rate content off by default", compliance.get("allow_rate_content") is False)
+    check("publishing requires approval",
+          compliance.get("approval_required_before_publishing") is True)
+
+    # Marketing skills must reference shared knowledge rather than restating it.
+    skills = sorted((ROOT / "skills" / "marketing").glob("*/SKILL.md"))
+    check("marketing skills present", len(skills) >= 10, str(len(skills)))
+    for path in skills:
+        body = path.read_text(encoding="utf-8")
+        name = path.parent.name
+        check(f"{name}: references shared knowledge",
+              body.count("knowledge/marketing/") >= 2)
+        check(f"{name}: applies compliance knowledge",
+              "marketing-compliance.md" in body)
+        # Collapse whitespace: these files are hard-wrapped, so an exact
+        # substring match would depend on where the line happened to break.
+        flat = " ".join(body.split())
+        check(f"{name}: never publishes",
+              "never posts, schedules, sends, or publishes anything" in flat)
+
+    # Brand assets
+    logo = ROOT / "assets" / "branding" / "loan-factory-logo-transparent.png"
+    check("official logo preserved", logo.exists())
+    if logo.exists():
+        check("logo is non-trivial", logo.stat().st_size > 10000)
+    check("branding README exists", (ROOT / "assets" / "branding" / "README.md").exists())
+
+
 # ---------------------------------------------------------------- gitignore
 def test_gitignore_protection():
     dangerous = [
@@ -296,7 +364,7 @@ def main() -> int:
     print("Team Leader OS — test suite\n")
     for fn in (test_miniyaml, test_manifest, test_tier_selection, test_privacy,
                test_skills, test_schemas, test_synthetic_documents,
-               test_extraction, test_gitignore_protection):
+               test_extraction, test_marketing, test_gitignore_protection):
         try:
             fn()
         except Exception as exc:  # noqa: BLE001

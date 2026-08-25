@@ -597,3 +597,180 @@ automations:
     setup: "None."
     customization: "None needed."
     time_saved_per_month: "~3 hrs per audit, more from the fixes"
+
+  # ======================== MARKETING SYSTEM ==============================
+  - id: marketing-weekly-content-plan
+    name: "Weekly content planning block"
+    category: marketing
+    objective: "Decide the week's content once, in one sitting, instead of every morning."
+    trigger: "0 15 * * 5"
+    cadence: "Friday, planning the week ahead"
+    data_needed: ["config/marketing.yaml", "questions the team was actually asked this week", "any campaign running"]
+    skill: content-calendar-builder
+    prompt: "Plan next week's content for [LO or team]. Here are the questions we actually got asked this week: [paste]. Use their content mix and formats. Give me date, topic, format, hook, teaching point, and CTA for each slot, and mark the batching day."
+    output: "A dated week of content with hooks and CTAs already written, plus a batch day."
+    approval_required: true
+    privacy: "No borrower detail. If a real client scenario inspires a piece, strip every identifying detail before it goes in."
+    setup: "Fill in config/marketing.yaml for at least one Loan Officer."
+    customization: "Cadence, mix, and platforms are per-LO in config/marketing.yaml."
+    time_saved_per_month: "Replaces daily what-do-I-post decisions: ~4 hrs"
+
+  - id: marketing-daily-content-ideas
+    name: "Daily content idea from real questions"
+    category: marketing
+    objective: "Never start from a blank page."
+    trigger: "manual, or each morning"
+    cadence: "Daily or as needed"
+    data_needed: ["a question the team was actually asked", "the target audience"]
+    skill: content-calendar-builder
+    prompt: "We got asked this today: [paste question]. Give me five content angles from it — one for buyers, one for Realtors, one short video, one carousel, one written post. Hook and one teaching point each. No rates."
+    output: "Five angles with hooks, ready to draft."
+    approval_required: true
+    privacy: "Strip any borrower identifying detail from the question first."
+    setup: "None."
+    customization: "Change the number and mix of angles."
+    time_saved_per_month: "15 min/day x 22 = ~5.5 hrs"
+
+  - id: marketing-market-news-to-content
+    name: "Market news to educational content"
+    category: marketing
+    objective: "Turn what is happening in the market into teaching content, without making rate claims."
+    trigger: "0 9 * * 1"
+    cadence: "Weekly"
+    data_needed: ["a current market development with a dated source"]
+    skill: content-calendar-builder
+    prompt: "Here is this week's market development: [paste, with source and date]. Turn it into three educational pieces that explain what it means for buyers — no rate figures, no predictions, no urgency. Label the content category and include the disclosure."
+    output: "Three educational pieces with sources cited and disclosures attached."
+    approval_required: true
+    privacy: "Public information only."
+    setup: "None. Requires you to supply a sourced development — the agent will not assert market facts unsourced."
+    customization: "Audience and number of pieces."
+    time_saved_per_month: "~2 hrs"
+
+  - id: marketing-guideline-to-realtor-education
+    name: "Guideline update to Realtor education"
+    category: marketing
+    objective: "Turn a program or guideline change into content that makes partners better at their job."
+    trigger: "manual, when something changes"
+    cadence: "As needed"
+    data_needed: ["the guideline change with an authoritative source and date"]
+    skill: realtor-marketing-coach
+    prompt: "This changed: [paste with source and date]. Build Realtor education explaining what it means for their buyers and what they should verify before a client writes. Cite the source and date. Do not state eligibility rules as settled fact."
+    output: "Realtor-facing education with sources, dates, and a verification note."
+    approval_required: true
+    privacy: "Public and approved sources only."
+    setup: "None."
+    customization: "Format — post, one-pager, or workshop segment."
+    time_saved_per_month: "~2 hrs"
+
+  - id: marketing-content-repurposing
+    name: "Repurpose one asset into many"
+    category: marketing
+    objective: "Stop letting a good recording produce exactly one post."
+    trigger: "after each training, webinar, or long video"
+    cadence: "Whenever a substantial asset is created"
+    data_needed: ["the transcript, outline, or notes from the source asset"]
+    skill: content-repurposing
+    prompt: "Here is a [training / webinar / long video]: [paste transcript or outline]. Extract the distinct teaching points and turn them into short clips, carousels, written posts, stories, and a Realtor one-pager. Reframe each for its audience, re-check compliance per piece, and spread them over three weeks."
+    output: "20+ pieces mapped to formats and dates, with a per-piece compliance re-check."
+    approval_required: true
+    privacy: "Remove any client scenario detail from the source before processing."
+    setup: "None."
+    customization: "Output mix and the period to spread across."
+    time_saved_per_month: "Typically the single largest content win: ~6 hrs"
+
+  - id: marketing-video-script-batch
+    name: "Batch video scripts"
+    category: marketing
+    objective: "Produce a week of scripts in one sitting so filming is one session."
+    trigger: "0 14 * * 4"
+    cadence: "Weekly, before the filming block"
+    data_needed: ["the week's video topics", "the LO's comfort_with_video"]
+    skill: video-script-builder
+    prompt: "Write [n] short video scripts for [LO] on these topics: [list]. Their comfort with video is [low/medium/high] — if low, use no-face formats. Hook, context, lesson, CTA. Written for speech. Include on-screen text and the caption disclosure."
+    output: "Ready-to-film scripts with on-screen text and captions."
+    approval_required: true
+    privacy: "No client scenarios with identifying detail."
+    setup: "Set comfort_with_video in config/marketing.yaml."
+    customization: "Length, count, and format."
+    time_saved_per_month: "~3 hrs"
+
+  - id: marketing-weekly-scorecard
+    name: "Weekly marketing scorecard"
+    category: marketing
+    objective: "See who is executing their marketing plan before a month of silence goes unnoticed."
+    trigger: "0 16 * * 5"
+    cadence: "Weekly"
+    data_needed: ["what each LO published this week", "their targets from config/marketing.yaml"]
+    skill: marketing-accountability
+    prompt: "Here is what the team published this week: [paste]. Compare against each person's own target. Report streaks, who stopped, and the failure pattern for anyone slipping. One change each. Do not rank people against each other."
+    output: "Per-LO target vs actual, streaks, failure patterns, and one change each."
+    approval_required: false
+    privacy: "Individual performance data. Keep output in team-data/."
+    setup: "Set posting_frequency_target per LO."
+    customization: "Review period and targets."
+    time_saved_per_month: "~2 hrs, and catches drop-off weeks earlier"
+
+  - id: marketing-team-training-segment
+    name: "Marketing training for the team meeting"
+    category: marketing
+    objective: "Give the weekly meeting a marketing segment that teaches something specific."
+    trigger: "0 15 * * 5"
+    cadence: "Weekly, with meeting prep"
+    data_needed: ["the team's shared marketing gap", "meeting time available"]
+    skill: lo-marketing-coach
+    prompt: "Build a [n]-minute marketing training segment for Friday's team meeting. The shared gap is [describe]. More drilling than teaching — include the exact exercise and a one-page takeaway."
+    output: "A timed segment with a live exercise and a takeaway card."
+    approval_required: true
+    privacy: "Team-level patterns only. Never build a segment aimed at one person."
+    setup: "None."
+    customization: "Length and topic."
+    time_saved_per_month: "~2 hrs"
+
+  - id: marketing-campaign-followup
+    name: "Campaign follow-up preparation"
+    category: marketing
+    objective: "Make sure campaign responses are actually worked, which is where most campaigns fail."
+    trigger: "0 9 * * 1"
+    cadence: "Weekly during a campaign"
+    data_needed: ["who responded", "what they asked", "who owns follow-up"]
+    skill: campaign-builder
+    prompt: "Our [campaign] got these responses: [paste, identifying detail removed]. For each, draft the follow-up for [owner] to review and send. Group by what they actually need. Flag anyone who should be a real conversation rather than a message."
+    output: "Drafted follow-ups grouped by need, for human review and sending."
+    approval_required: true
+    privacy: "Responses may contain personal information. Strip identifiers before pasting. Every message is sent by a human."
+    setup: "Requires a campaign with a defined follow-up owner."
+    customization: "Grouping and tone."
+    time_saved_per_month: "~2 hrs"
+
+  - id: marketing-social-post-review
+    name: "Pre-publish post review"
+    category: marketing
+    objective: "Catch a compliance problem before it publishes rather than after."
+    trigger: "before publishing"
+    cadence: "As needed"
+    data_needed: ["the draft", "platform and audience"]
+    skill: social-post-review
+    prompt: "Review this before it goes out: [paste draft]. Check compliance first, then whether it teaches anything, then the hook and CTA. Rewrite the weakest element with exact words. Tell me if it should not publish."
+    output: "Compliance findings, essentials check, exact rewrites, and a verdict."
+    approval_required: false
+    privacy: "No borrower detail in drafts."
+    setup: "None."
+    customization: "None needed."
+    time_saved_per_month: "Small time saving, large risk reduction"
+
+  - id: marketing-monthly-performance
+    name: "Monthly marketing performance review"
+    category: marketing
+    objective: "Decide honestly whether the marketing effort is producing anything."
+    trigger: "0 9 1 * *"
+    cadence: "Monthly"
+    data_needed: ["what was published", "engagement data if available", "conversations attributed to content"]
+    skill: marketing-performance-review
+    prompt: "Review last month's marketing: [paste what you have]. State what data is missing. Separate output, reach, engagement, and conversations. Apply a horizon check before judging. Give me one change. Tell me if there is not enough data to conclude anything."
+    output: "Layered performance picture with an explicit horizon check and one recommendation."
+    approval_required: false
+    privacy: "Keep individual performance in team-data/."
+    setup: "None."
+    customization: "Period and metrics."
+    time_saved_per_month: "~2 hrs"

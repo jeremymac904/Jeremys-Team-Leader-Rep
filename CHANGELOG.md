@@ -4,6 +4,43 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 Versioning is [Semantic](https://semver.org/): breaking changes to configuration or skill
 structure bump the major version.
 
+## [0.2.0] — 2026-08-25
+
+Marketing system, built from four Loan Factory marketing source packages.
+
+### Added
+- **10 marketing skills**: Loan Officer marketing coach, content calendar builder, Realtor
+  marketing coach, video script builder, content repurposing, campaign builder, social post
+  review, brand voice builder, marketing accountability, marketing performance review
+- **9 shared marketing knowledge files** in `knowledge/marketing/` — content strategy,
+  brand voice, compliance, CTAs, video frameworks, Realtor value, repurposing, campaign
+  planning, and Loan Officer archetypes. Skills reference these rather than duplicating them.
+- **10 Loan Officer marketing archetypes** so coaching is specific to the person — from
+  `no-audience` to `camera-shy` to `has-content-needs-systems`
+- **11 marketing automations**, bringing the library to 46
+- `config/marketing.example.yaml` — team defaults, configurable compliance disclosures, and
+  per-Loan-Officer marketing profiles
+- `assets/branding/` — the official Loan Factory logo, original preserved, plus one scaled
+  derivative for documentation
+- `docs/marketing.md` and `docs/provenance.md`
+
+### Changed
+- 8 existing team leadership skills cross-linked to the new marketing skills so Hermes
+  routes correctly
+- Automation approval rule made substantive: every marketing automation that produces
+  publishable content now requires approval, rather than depending on whether a keyword
+  appeared in its description
+- `scripts/validate.py` — 11 checks; added archetype drift detection and content-mix totals
+- Test suite expanded to **432 tests**
+
+### Excluded
+- Marketing Training Asset Package — marked internal, shows proprietary platform internals
+- Team Marketing Knowledge Pack corporate strategy — internal, names an executive
+- Raw content libraries, exact DM and email scripts, and the full prompt library, on the
+  instruction of the source material's own `DO_NOT_IMPORT.md`
+
+Both excluded packages are flagged in `docs/provenance.md` for review.
+
 ## [0.1.0] — 2026-08-25
 
 Initial release.

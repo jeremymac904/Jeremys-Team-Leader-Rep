@@ -87,6 +87,7 @@ read yet.
 ## Related skills
 - `tl-morning-brief` — the daily version
 - `tl-monthly-review` — the longer arc
+- `marketing-accountability` — marketing execution this week
 - `tl-automation-advisor` — for the repetitive work it surfaces
 
 ## What this skill must not assume

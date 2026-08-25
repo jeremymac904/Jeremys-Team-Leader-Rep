@@ -75,9 +75,19 @@ AUTOMATION_FIELDS = [
     "customization", "time_saved_per_month",
 ]
 
-# Categories whose automations can produce an outward effect and therefore
-# must require approval.
-OUTWARD_KEYWORDS = ("send", "publish", "post", "contact", "outreach", "message")
+# Automations that can produce an outward effect must require approval.
+#
+# Two rules, because a keyword scan alone both misses cases and produces false
+# positives (a *review* skill mentions "publish" without ever publishing):
+#   1. Any automation producing publishable marketing content.
+#   2. Anything whose description implies contacting a person.
+OUTWARD_KEYWORDS = ("send", "contact", "outreach", "message to", "publish to")
+CONTENT_PRODUCING = {
+    "marketing-weekly-content-plan", "marketing-daily-content-ideas",
+    "marketing-market-news-to-content", "marketing-guideline-to-realtor-education",
+    "marketing-content-repurposing", "marketing-video-script-batch",
+    "marketing-team-training-segment", "marketing-campaign-followup",
+}
 
 CONFIG_SHAPE = {
     "config/team-leader.example.yaml": ["identity", "market", "goals", "leadership", "schedule", "permissions"],
@@ -179,11 +189,11 @@ def _automations():
         if item.get("skill") not in known_skills:
             problems.append(f"{ident}: skill {item.get('skill')!r} does not exist")
         blob = f"{item.get('objective','')} {item.get('output','')}".lower()
-        if any(word in blob for word in OUTWARD_KEYWORDS) and not item.get("approval_required"):
-            problems.append(
-                f"{ident}: looks like it has an outward effect but "
-                f"approval_required is not true"
-            )
+        outward = any(word in blob for word in OUTWARD_KEYWORDS)
+        if (outward or ident in CONTENT_PRODUCING) and not item.get("approval_required"):
+            reason = ("produces publishable content" if ident in CONTENT_PRODUCING
+                      else "description implies contacting someone")
+            problems.append(f"{ident}: {reason} but approval_required is not true")
     return problems
 
 
@@ -275,6 +285,49 @@ def _hermes_profile():
         got = ((profile or {}).get(section) or {}).get(key)
         if got != want:
             problems.append(f"{section}.{key} is {got!r}, expected {want!r}")
+    return problems
+
+
+@check("marketing archetypes are documented")
+def _archetypes():
+    """Every archetype used in config must exist in the knowledge file.
+
+    Without this, someone can add an archetype to configuration that no skill
+    knows how to coach, and the agent will silently fall back to generic advice.
+    """
+    config = ROOT / "config" / "marketing.example.yaml"
+    profiles = ROOT / "knowledge" / "marketing" / "lo-marketing-profiles.md"
+    if not config.exists() or not profiles.exists():
+        return ["config/marketing.example.yaml or the profiles knowledge file is missing"]
+
+    documented = set()
+    for line in profiles.read_text(encoding="utf-8").splitlines():
+        line = line.strip()
+        if line.startswith("`archetype:") and line.endswith("`"):
+            documented.add(line[len("`archetype:"):-1].strip())
+
+    problems = []
+    if not documented:
+        return ["no `archetype: <slug>` markers found in lo-marketing-profiles.md"]
+
+    data = loads_subset(config.read_text(encoding="utf-8")) or {}
+    for officer in data.get("loan_officers") or []:
+        archetype = officer.get("archetype")
+        if archetype and archetype not in documented:
+            problems.append(
+                f"{officer.get('id')}: archetype {archetype!r} is not documented in "
+                f"knowledge/marketing/lo-marketing-profiles.md"
+            )
+
+    # Content mixes must total 100 or the calendar maths is wrong.
+    mixes = [("team", (data.get("team") or {}).get("content_mix"))]
+    mixes += [(o.get("id"), o.get("content_mix")) for o in (data.get("loan_officers") or [])]
+    for name, mix in mixes:
+        if not mix:
+            continue
+        total = sum(v for v in mix.values() if isinstance(v, int))
+        if total != 100:
+            problems.append(f"{name}: content_mix totals {total}, should be 100")
     return problems
 
 

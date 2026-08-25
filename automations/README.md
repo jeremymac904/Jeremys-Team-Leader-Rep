@@ -1,6 +1,6 @@
 # Automation library
 
-35 automations across 10 categories. Every one ships **inactive**.
+46 automations across 10 categories. Every one ships **inactive**.
 
 ## How to actually use these
 
@@ -105,6 +105,17 @@ Staying visible without inventing content every week.
 | `marketing-content-plan` | Keep the team visible without inventing content every week. | Monthly | yes |
 | `marketing-video-script` | Remove the blank-page problem from weekly video. | Weekly | yes |
 | `marketing-realtor-education` | Be the lender agents learn from, which is a durable advantage over being the cheapest. | Monthly | yes |
+| `marketing-weekly-content-plan` | Decide the week's content once, in one sitting, instead of every morning. | Friday, planning the week ahead | yes |
+| `marketing-daily-content-ideas` | Never start from a blank page. | Daily or as needed | yes |
+| `marketing-market-news-to-content` | Turn what is happening in the market into teaching content, without making rate claims. | Weekly | yes |
+| `marketing-guideline-to-realtor-education` | Turn a program or guideline change into content that makes partners better at their job. | As needed | yes |
+| `marketing-content-repurposing` | Stop letting a good recording produce exactly one post. | Whenever a substantial asset is created | yes |
+| `marketing-video-script-batch` | Produce a week of scripts in one sitting so filming is one session. | Weekly, before the filming block | yes |
+| `marketing-weekly-scorecard` | See who is executing their marketing plan before a month of silence goes unnoticed. | Weekly | no |
+| `marketing-team-training-segment` | Give the weekly meeting a marketing segment that teaches something specific. | Weekly, with meeting prep | yes |
+| `marketing-campaign-followup` | Make sure campaign responses are actually worked, which is where most campaigns fail. | Weekly during a campaign | yes |
+| `marketing-social-post-review` | Catch a compliance problem before it publishes rather than after. | As needed | no |
+| `marketing-monthly-performance` | Decide honestly whether the marketing effort is producing anything. | Monthly | no |
 
 ## Executive workflows
 

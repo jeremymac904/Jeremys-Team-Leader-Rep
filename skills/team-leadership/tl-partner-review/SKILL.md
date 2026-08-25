@@ -82,6 +82,7 @@ Without last-contact dates you cannot detect decay. Say so and ask for that one 
 rather than producing a list that looks analytical but is not.
 
 ## Related skills
+- `realtor-marketing-coach` — builds the partner-facing content and value items
 - `tl-content-plan` — content used as a partner value item
 - `tl-pipeline-review` — files tied to a partner
 

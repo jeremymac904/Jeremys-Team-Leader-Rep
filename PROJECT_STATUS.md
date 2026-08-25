@@ -4,7 +4,7 @@ The durable record of this build. Any coding agent — Claude Code, Codex, Herme
 person — should be able to read this file and continue without the original conversation.
 
 **Last updated:** 2026-08-25
-**Version:** 0.1.0 (pre-release)
+**Version:** 0.2.0 (pre-release)
 **Phase:** 11 of 12 — testing and validation complete; preparing the initial release
 
 ---
@@ -18,8 +18,10 @@ mortgage documents without sending them to a cloud provider.
 Three layers, all core:
 
 1. **Team Leader Hermes Agent** — persona, operating instructions, safety profile
-2. **Custom skill library** — 22 Hermes skills loaded from this repository
+2. **Custom skill library** — 32 Hermes skills loaded from this repository
 3. **Local AI + document analysis** — llama.cpp, Qwen3-VL, NuExtract 3, Local Privacy Mode
+4. **Marketing system** — 10 marketing skills over a shared knowledge base, with
+   per-Loan-Officer archetypes so coaching is specific rather than generic
 
 Source material: the local Loan Factory Coaching Build. Target:
 `https://github.com/jeremymcdonald-prog/Jeremys-Team-Leader-Rep` (public).
@@ -41,6 +43,10 @@ Source material: the local Loan Factory Coaching Build. Target:
 | 9 | Privacy routing fails closed | An unrecognized workflow is treated as LOCAL_REQUIRED. Over-permissive failure is unrecoverable; over-restrictive failure is a question. |
 | 10 | Dependency-free YAML reader (`scripts/lib/miniyaml.py`) | Setup and validation must work on a stock machine with no `pip install`. Uses PyYAML when present. |
 | 11 | Model weights never committed | `local_data/**` plus extension-level ignores for `*.gguf`, `*.safetensors`, etc. |
+| 13 | Marketing knowledge is shared, not duplicated per skill | Nine files in `knowledge/marketing/` that skills reference. One source of truth per idea; a rule changes once. |
+| 14 | Loan Officer marketing **archetypes** | Generic marketing advice is why most LO marketing coaching fails. Ten archetypes drive differentiated plans; validation blocks config/doc drift. |
+| 15 | Raw content libraries deliberately not imported | The source material's own `DO_NOT_IMPORT.md` names them. Operational logic was extracted instead. |
+| 16 | Compliance disclosures configurable, never hardcoded | Required wording varies by company and state; hardcoding Jeremy's would break reuse. |
 | 12 | Paid coaching program not republished | It is a commercial product marked internal. Frameworks were re-authored; the verbatim product was excluded. |
 
 ---
@@ -53,6 +59,9 @@ agent/team-leader/           SOUL template, Hermes profile template
 skills/
   team-leadership/           14 skills
   mortgage-documents/        8 skills
+  marketing/                 10 skills
+knowledge/marketing/         9 shared knowledge files
+assets/branding/             official Loan Factory logo + derivative
 config/                      *.example.yaml templates (real configs gitignored)
 automations/                 catalog.yaml (35 automations) + schema + index
 coaching/frameworks/         7 coaching methodology documents
@@ -89,6 +98,10 @@ hermes-home/                 GITIGNORED — isolated HERMES_HOME
 - **Phase 11** 327 tests passing; local AI validated (see `local-ai/VALIDATION.md`)
 - **Local AI** hardware detection, 4 tiers, manifest, llama.cpp integration, privacy mode,
   extraction pipeline, OCR, 8 schemas, 8 mortgage skills
+- **Marketing integration (v0.2.0)** — audited four new Loan Factory marketing source
+  packages; created 9 shared knowledge files, 10 marketing skills, 11 marketing
+  automations, `config/marketing.example.yaml` with LO archetypes, brand assets, and
+  `docs/provenance.md`; cross-linked 8 existing skills to the new marketing skills
 
 ---
 
@@ -103,13 +116,18 @@ hermes-home/                 GITIGNORED — isolated HERMES_HOME
 | Absolute paths from the Legends profile | Replaced with `${REPO_PATH}`; a validation check now fails on `/Users/` or `/Volumes/` in tracked files |
 | Jeremy's identity (email, NMLS 1195266) | Replaced with fictional Avery Sample / Northstar Lending Team |
 | Next.js coaching site, Gamma decks, video transcripts | Different products, out of scope |
+| **Marketing Training Asset Package** (28 files) | Marked "internal Loan Factory training assets"; documents proprietary platform internals with annotated screenshots and contains a corporate email. **Flagged for review.** |
+| **Team Marketing Knowledge Pack — corporate strategy sections** | Internal company initiative naming a Loan Factory executive and describing team entitlements. Generic patterns extracted; the strategy document not published. **Flagged for review.** |
+| Raw reels / posts / stories libraries, exact DM and email scripts, full AI prompt library | Excluded on the instruction of the source material's own `DO_NOT_IMPORT.md` |
+| Marketing Content OS build artifacts (`.next/`, ~500 files) | Machine-generated noise |
 
 ---
 
 ## 6. Tests and security checks
 
-- `tests/run_tests.py` — **327/327 passing** with `--local-ai`
-- `scripts/validate.py` — 10 structural checks
+- `tests/run_tests.py` — **432/432 passing** with `--local-ai`
+- `scripts/validate.py` — 11 structural checks, including marketing archetype drift and
+  content-mix totals
 - `scripts/privacy_scan.py` — secret and PII scan over everything git would commit
 - Gitignore protection asserted in the test suite for models, borrower docs, and configs
 - Hermes profile validated against the installed Hermes: real config keys, real toolset names
@@ -129,6 +147,10 @@ hermes-home/                 GITIGNORED — isolated HERMES_HOME
 5. **25–35 s per document** on an M4 Pro. Not suitable for bulk processing.
 6. **No synthetic tax return or Closing Disclosure** yet, though both schemas exist.
 7. **Push blocked:** neither authenticated `gh` account has push access to the target repo.
+8. **Marketing output not yet validated against a live model.** The marketing skills are
+   structurally tested — archetype differentiation, knowledge references, compliance
+   linkage — but no generated marketing content has been reviewed for quality by a human.
+9. **Two source packages held pending your review** — see the exclusions table.
 
 ---
 
@@ -140,6 +162,8 @@ hermes-home/                 GITIGNORED — isolated HERMES_HOME
 - Multi-document set review against a real file
 - Windows and Linux validation
 - Synthetic tax return, Closing Disclosure, insurance, and HOA documents
+- Marketing Training Asset Package, if Loan Factory approves public distribution
+- Live-model quality review of generated marketing content
 
 ---
 

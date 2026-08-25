@@ -13,6 +13,7 @@
 
 | Guide | For |
 |---|---|
+| [marketing.md](marketing.md) | The marketing skill system |
 | [automation-safety.md](automation-safety.md) | Before you activate any automation |
 | [integrations.md](integrations.md) | What connects today versus what does not |
 | [mortgage-compliance.md](mortgage-compliance.md) | Boundaries the agent will not cross |
@@ -33,4 +34,5 @@
 
 - [../PROJECT_STATUS.md](../PROJECT_STATUS.md) — architecture, decisions, what is tested
 - [../local-ai/VALIDATION.md](../local-ai/VALIDATION.md) — exactly what was verified
+- [provenance.md](provenance.md) — where the knowledge came from
 - [../SECURITY.md](../SECURITY.md) — what must never be committed
