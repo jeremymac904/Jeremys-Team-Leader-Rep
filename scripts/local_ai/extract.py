@@ -33,6 +33,8 @@ from miniyaml import load_file  # noqa: E402
 ROOT = Path(__file__).resolve().parent.parent.parent
 CONFIG = ROOT / "config" / "local-ai.yaml"
 CONFIG_EXAMPLE = ROOT / "config" / "local-ai.example.yaml"
+# Rendered page images for the vision model. Gitignored, stays local.
+WORKING = ROOT / "local_data" / "working" / "pages"
 
 # Signals used to classify a document from its own text.
 #
@@ -115,6 +117,10 @@ class PageResult:
     char_count: int
     text: str = ""
     needs_vision: bool = False
+    # Set when a page has no readable text layer and OCR could not help. The
+    # rendered image is written to local_data/working/ so the local vision
+    # model can read it. It never leaves the machine.
+    image_path: str = ""
 
 
 @dataclass
@@ -174,6 +180,21 @@ def classify(text: str) -> tuple[str, str]:
 # PDF
 # --------------------------------------------------------------------------
 
+def render_page(page, source: Path, number: int, dpi: int) -> str:
+    """Render one PDF page to a local PNG for the vision model.
+
+    Written under local_data/working/, which is gitignored. The image never
+    leaves this machine — it is read back and passed to the local model only.
+    """
+    try:
+        WORKING.mkdir(parents=True, exist_ok=True)
+        out = WORKING / f"{source.stem}-p{number}.png"
+        page.get_pixmap(dpi=dpi).save(out)
+        return str(out)
+    except Exception:  # noqa: BLE001 - a failed render is reported, not fatal
+        return ""
+
+
 def extract_pdf(path: Path, config: dict) -> ExtractionResult:
     import pymupdf
 
@@ -226,11 +247,15 @@ def extract_pdf(path: Path, config: dict) -> ExtractionResult:
                         f"The scan may be poor quality — verify this page by hand."
                     )
             except Exception as exc:  # noqa: BLE001 - report, never fall back to cloud
-                result.pages.append(PageResult(index + 1, "image-only", 0, "", needs_vision=True))
+                image = render_page(page, path, index + 1, dpi)
+                result.pages.append(PageResult(index + 1, "image-only", 0, "",
+                                               needs_vision=True, image_path=image))
                 result.warnings.append(f"Page {index + 1}: local OCR failed ({exc}). "
-                                       f"This page needs the local vision model.")
+                                       f"Handing this page to the local vision model.")
         else:
-            result.pages.append(PageResult(index + 1, "image-only", 0, "", needs_vision=True))
+            image = render_page(page, path, index + 1, dpi)
+            result.pages.append(PageResult(index + 1, "image-only", 0, "",
+                                           needs_vision=True, image_path=image))
 
     # Tables, from pages that had a real text layer.
     try:
@@ -300,11 +325,13 @@ def extract_image(path: Path, config: dict) -> ExtractionResult:
             text = pytesseract.image_to_string(Image.open(path)).strip()
             result.pages.append(PageResult(1, "ocr", len(text), text))
         except Exception as exc:  # noqa: BLE001
-            result.pages.append(PageResult(1, "image-only", 0, "", needs_vision=True))
-            result.warnings.append(f"Local OCR failed ({exc}). Use the local vision model.")
+            result.pages.append(PageResult(1, "image-only", 0, "", needs_vision=True,
+                                           image_path=str(path)))
+            result.warnings.append(f"Local OCR failed ({exc}). Handing this to the local vision model.")
     else:
-        result.pages.append(PageResult(1, "image-only", 0, "", needs_vision=True))
-        result.warnings.append("OCR unavailable — this image needs the local vision model.")
+        result.pages.append(PageResult(1, "image-only", 0, "", needs_vision=True,
+                                       image_path=str(path)))
+        result.warnings.append("OCR unavailable — handing this image to the local vision model.")
     _finalize(result)
     return result
 
@@ -314,9 +341,10 @@ def _finalize(result: ExtractionResult) -> None:
     result.methods_used = sorted({p.method for p in result.pages})
     result.document_type, result.classification_confidence = classify(result.full_text)
     if any(p.needs_vision for p in result.pages):
+        pending = [p.page for p in result.pages if p.needs_vision]
         result.warnings.append(
-            "Some pages produced no text and need the local vision model "
-            "(Qwen3-VL). They were NOT sent anywhere."
+            f"Page(s) {pending} have no readable text layer and will be read by the "
+            f"local vision model. They were NOT sent anywhere off this machine."
         )
     total = sum(p.char_count for p in result.pages)
     if total < 50:

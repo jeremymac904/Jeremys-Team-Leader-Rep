@@ -20,6 +20,7 @@ than quietly falling back.
 from __future__ import annotations
 
 import argparse
+import base64
 import json
 import sys
 import time
@@ -74,11 +75,41 @@ def load_schema(name: str) -> dict | None:
     return json.loads(path.read_text(encoding="utf-8"))
 
 
-def call_local_model(prompt: str, url: str, timeout: int = 600) -> tuple[str | None, str]:
-    """Call the local OpenAI-compatible endpoint. Returns (content, error)."""
+def encode_image(path: str) -> str | None:
+    """Read a local image into a data URI for the multimodal endpoint.
+
+    The image is read from disk and sent to 127.0.0.1 only. Nothing here
+    reaches a network beyond loopback.
+    """
+    try:
+        raw = Path(path).read_bytes()
+    except OSError:
+        return None
+    suffix = Path(path).suffix.lower().lstrip(".") or "png"
+    mime = "jpeg" if suffix in ("jpg", "jpeg") else suffix
+    return f"data:image/{mime};base64," + base64.b64encode(raw).decode()
+
+
+def call_local_model(prompt: str, url: str, timeout: int = 600,
+                     images: list[str] | None = None) -> tuple[str | None, str]:
+    """Call the local OpenAI-compatible endpoint. Returns (content, error).
+
+    When *images* are supplied the request uses the multimodal content-parts
+    form, which llama-server accepts when started with --mmproj.
+    """
+    if images:
+        parts: list[dict] = [{"type": "text", "text": prompt}]
+        for image in images:
+            encoded = encode_image(image)
+            if encoded:
+                parts.append({"type": "image_url", "image_url": {"url": encoded}})
+        user_content: object = parts
+    else:
+        user_content = prompt
+
     payload = {
         "messages": [{"role": "system", "content": SYSTEM_PROMPT},
-                     {"role": "user", "content": prompt}],
+                     {"role": "user", "content": user_content}],
         # Reasoning models emit a chain of thought before the answer, so this
         # budget has to cover both. Too low and content comes back empty.
         "temperature": 0, "max_tokens": 4096, "stream": False,
@@ -161,6 +192,56 @@ def validate(fields: dict, schema: dict) -> list[str]:
     return missing
 
 
+def field_spec(schema: dict) -> list[str]:
+    """Describe each field with its TYPE, not just its name.
+
+    Sending bare field names lets the model guess types, and it guesses wrong:
+    a field declared as an array of schedule names came back as the boolean
+    `true`. Stating the expected type per field fixes that, and it costs only a
+    few tokens.
+    """
+    lines = []
+    for name, spec in schema.get("properties", {}).items():
+        if name == "source_references":
+            continue
+        kind = spec.get("type", "string")
+        if kind == "array":
+            item = (spec.get("items") or {}).get("type", "string")
+            if item == "object":
+                keys = list(((spec.get("items") or {}).get("properties") or {}).keys())
+                hint = f"array of objects with keys {keys}" if keys else "array of objects"
+            else:
+                hint = f"array of {item}s — return [] if none apply, never true/false"
+        elif kind == "boolean":
+            hint = "true or false"
+        else:
+            hint = kind
+        desc = (spec.get("description") or "").split(".")[0][:70]
+        enum = spec.get("enum")
+        if enum:
+            hint = f"one of {enum}"
+        lines.append(f'  "{name}": <{hint}>' + (f"   # {desc}" if desc else ""))
+    return lines
+
+
+def build_prompt(schema: dict, extraction) -> str:
+    return (
+        f"Extract these fields from the {extraction.document_type} below.\n\n"
+        f"Return ONE JSON object with exactly these keys and these types:\n"
+        + "\n".join(field_spec(schema))
+        + "\n\nRules:\n"
+        "- Respect the type of every field. A field described as an array must be a "
+        "JSON array, never true/false and never a sentence.\n"
+        "- Copy values exactly as written, including commas in numbers.\n"
+        "- Use null for anything not present. Never invent a value.\n"
+        "- Mask account numbers and any SSN.\n"
+        "- List anything uncertain, unusual, or requiring a human in "
+        "human_verification_items. An empty list means you are certain about "
+        "every field, which is rare — say so only if true.\n\n"
+        f"DOCUMENT:\n{extraction.full_text[:12000]}"
+    )
+
+
 def review(path: Path, extract_only: bool) -> dict:
     result: dict = {"file": path.name, "processed_locally": True, "steps": []}
 
@@ -200,11 +281,49 @@ def review(path: Path, extract_only: bool) -> dict:
         result["extracted_text"] = extraction.full_text
         return result
 
-    if not extraction.full_text.strip():
-        detail = "No text could be read from this document locally."
+    vision_pages = [pg for pg in extraction.pages
+                    if getattr(pg, "needs_vision", False) and getattr(pg, "image_path", "")]
+
+    if not extraction.full_text.strip() and not vision_pages:
+        detail = "No text could be read from this document, and no page image is available."
         step("extraction", "failed", detail)
         result["error"] = privacy.explain_local_failure("text extraction", detail, config)
         return result
+
+    # 2b. A scanned page has no text to classify from. Ask the vision model.
+    url = srv.base_url()
+    if extraction.document_type == "unknown" and vision_pages:
+        try:
+            privacy.assert_local_allowed("scanned mortgage document", url, config)
+        except privacy.PrivacyViolation as exc:
+            step("privacy gate", "blocked", str(exc))
+            result["error"] = str(exc)
+            return result
+        if not srv.server_pid():
+            detail = ("This page needs the local vision model, which is not running.\n"
+                      "    python3 scripts/local_ai/server.py start")
+            step("vision classification", "failed", detail)
+            result["error"] = privacy.explain_local_failure(
+                "local vision classification", detail, config)
+            return result
+
+        known = ", ".join(sorted(SCHEMA_FOR_TYPE))
+        guess, err = call_local_model(
+            "Identify this mortgage document. Reply with ONLY one of these exact "
+            f"labels and nothing else: {known}, unknown",
+            url, images=[pg.image_path for pg in vision_pages][:1], timeout=300,
+        )
+        label = (guess or "").strip().lower()
+        matched = next((k for k in SCHEMA_FOR_TYPE if k in label), None)
+        if matched:
+            extraction.document_type = matched
+            extraction.classification_confidence = "moderate"
+            result["extraction"]["document_type"] = matched
+            result["extraction"]["classification_confidence"] = "moderate (via vision)"
+            step("vision classification", "ok", f"identified as {matched}")
+        else:
+            step("vision classification", "failed",
+                 f"could not identify the document type (model said: {label[:60]!r})")
 
     # 3. Schema
     schema_name = SCHEMA_FOR_TYPE.get(extraction.document_type)
@@ -219,7 +338,6 @@ def review(path: Path, extract_only: bool) -> dict:
     step("schema selection", "ok", f"schemas/{schema_name}.schema.json")
 
     # 4. Local model, with the privacy gate in front of it
-    url = srv.base_url()
     try:
         privacy.assert_local_allowed(f"{extraction.document_type} document", url, config)
     except privacy.PrivacyViolation as exc:
@@ -235,16 +353,20 @@ def review(path: Path, extract_only: bool) -> dict:
         result["error"] = privacy.explain_local_failure("local model inference", detail, config)
         return result
 
-    field_names = [k for k in schema["properties"] if k != "source_references"]
-    prompt = (
-        f"Extract these fields from the {extraction.document_type} below.\n\n"
-        f"Return a JSON object with exactly these keys:\n{json.dumps(field_names, indent=1)}\n\n"
-        f"Set confidence to one of: high, moderate, low, needs_human_verification.\n\n"
-        f"DOCUMENT:\n{extraction.full_text[:12000]}"
-    )
+    prompt = build_prompt(schema, extraction)
+
+    # Pages with no readable text layer are handed to the local vision model.
+    images = [pg.image_path for pg in vision_pages]
+    if images:
+        step("vision extraction", "ok",
+             f"page(s) {[pg.page for pg in vision_pages]} read by the local vision model")
+        prompt = (
+            "The page image(s) below could not be read as text. Read them visually and "
+            "extract the fields.\n\n" + prompt
+        )
 
     started = time.time()
-    content, error = call_local_model(prompt, url)
+    content, error = call_local_model(prompt, url, images=images or None)
     elapsed = time.time() - started
 
     if error:
@@ -263,7 +385,9 @@ def review(path: Path, extract_only: bool) -> dict:
     result["fields"] = fields
     result["empty_fields"] = validate(fields, schema)
     result["inference"] = {"endpoint": url, "loopback": privacy.is_loopback(url),
-                           "seconds": round(elapsed, 1)}
+                           "seconds": round(elapsed, 1),
+                           "vision_used": bool(images),
+                           "vision_pages": [pg.page for pg in vision_pages]}
     step("structured extraction", "ok",
          f"{len(fields)} keys in {elapsed:.1f}s via {url}")
 
@@ -293,6 +417,8 @@ def print_report(r: dict) -> None:
     if "inference" in r:
         i = r["inference"]
         print(f"  Inference    : {i['endpoint']}  loopback={i['loopback']}  {i['seconds']}s")
+        if i.get("vision_used"):
+            print(f"  Vision       : local vision model read page(s) {i['vision_pages']}")
 
     print("\n  Pipeline")
     for s in r["steps"]:

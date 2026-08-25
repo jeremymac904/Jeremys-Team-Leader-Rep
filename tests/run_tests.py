@@ -355,6 +355,24 @@ def test_local_inference(enabled: bool):
     check("review used loopback",
           (outcome.get("inference") or {}).get("loopback") is True)
 
+    # Vision path: a page with no text layer must be read by the vision model
+    # rather than failing. This regressed once because an early "no text"
+    # guard returned before vision was ever reached.
+    import extract as ex
+    scanned = ROOT / "local_data" / "working" / "scanned-w2.pdf"
+    if scanned.exists():
+        res = ex.extract(scanned)
+        needs = [pg for pg in res.pages if pg.needs_vision and pg.image_path]
+        if res.methods_used == ["image-only"]:
+            check("scanned page is rendered for vision", bool(needs),
+                  "no page image was produced")
+            for pg in needs:
+                check(f"page {pg.page} image exists on disk", Path(pg.image_path).exists())
+        else:
+            skip("vision render", f"OCR handled it (methods: {res.methods_used})")
+    else:
+        skip("vision render", "no scanned fixture present")
+
 
 def main() -> int:
     parser = argparse.ArgumentParser()
