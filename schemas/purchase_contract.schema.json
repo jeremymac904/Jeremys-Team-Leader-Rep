@@ -1,0 +1,208 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://loanfactory.local/schemas/purchase_contract.json",
+  "title": "Purchase Contract",
+  "description": "Fields extracted from a residential purchase agreement.  EXTRACTION ONLY \u2014 this is not an underwriting decision.",
+  "type": "object",
+  "properties": {
+    "buyer_names": {
+      "type": "array",
+      "description": "Buyer(s)",
+      "items": {
+        "type": "string"
+      }
+    },
+    "seller_names": {
+      "type": "array",
+      "description": "Seller(s)",
+      "items": {
+        "type": "string"
+      }
+    },
+    "property_address": {
+      "type": "string",
+      "description": "Subject property address"
+    },
+    "purchase_price": {
+      "type": "string",
+      "description": "Purchase price (as written on the document, e.g. '3,109.28')"
+    },
+    "earnest_money": {
+      "type": "string",
+      "description": "Earnest money deposit (as written on the document, e.g. '3,109.28')"
+    },
+    "additional_deposits": {
+      "type": "array",
+      "description": "Additional deposits and due dates",
+      "items": {
+        "type": "object",
+        "properties": {
+          "amount": {
+            "type": "string"
+          },
+          "due_date": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "financing_type": {
+      "type": "string",
+      "description": "Conventional | FHA | VA | USDA | Cash | Other"
+    },
+    "down_payment": {
+      "type": "string",
+      "description": "Down payment (as written on the document, e.g. '3,109.28')"
+    },
+    "loan_amount": {
+      "type": "string",
+      "description": "Loan amount if stated (as written on the document, e.g. '3,109.28')"
+    },
+    "seller_concessions": {
+      "type": "string",
+      "description": "Seller concessions toward buyer costs (as written on the document, e.g. '3,109.28')"
+    },
+    "effective_date": {
+      "type": "string",
+      "description": "Contract effective date (as written, e.g. '07/20/2026')"
+    },
+    "closing_date": {
+      "type": "string",
+      "description": "Scheduled closing date (as written, e.g. '07/20/2026')"
+    },
+    "inspection_deadline": {
+      "type": "string",
+      "description": "Inspection period end (as written, e.g. '07/20/2026')"
+    },
+    "loan_application_deadline": {
+      "type": "string",
+      "description": "Loan application deadline (as written, e.g. '07/20/2026')"
+    },
+    "financing_contingency_deadline": {
+      "type": "string",
+      "description": "Financing contingency deadline (as written, e.g. '07/20/2026')"
+    },
+    "appraisal_contingency_deadline": {
+      "type": "string",
+      "description": "Appraisal contingency deadline (as written, e.g. '07/20/2026')"
+    },
+    "occupancy": {
+      "type": "string",
+      "description": "Primary residence | second home | investment"
+    },
+    "personal_property_included": {
+      "type": "array",
+      "description": "Personal property conveyed",
+      "items": {
+        "type": "string"
+      }
+    },
+    "hoa_references": {
+      "type": "array",
+      "description": "HOA name, dues, disclosures",
+      "items": {
+        "type": "string"
+      }
+    },
+    "addenda": {
+      "type": "array",
+      "description": "Addenda attached",
+      "items": {
+        "type": "string"
+      }
+    },
+    "potential_financing_concerns": {
+      "type": "array",
+      "description": "Terms that could affect financing",
+      "items": {
+        "type": "string"
+      }
+    },
+    "important_dates": {
+      "type": "array",
+      "description": "Dates needing calendar attention",
+      "items": {
+        "type": "object",
+        "properties": {
+          "label": {
+            "type": "string"
+          },
+          "date": {
+            "type": "string"
+          },
+          "days_from_effective": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "missing_signatures": {
+      "type": "array",
+      "description": "Signature or initial blocks that appear unsigned",
+      "items": {
+        "type": "string"
+      }
+    },
+    "potential_inconsistencies": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Observations that look inconsistent. NOT conclusions."
+    },
+    "missing_information": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Fields the document should contain but does not."
+    },
+    "human_verification_items": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Things a human must confirm against the source before relying on them."
+    },
+    "confidence": {
+      "type": "string",
+      "enum": [
+        "high",
+        "moderate",
+        "low",
+        "needs_human_verification"
+      ]
+    },
+    "source_references": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "field": {
+            "type": "string"
+          },
+          "page": {
+            "type": "integer"
+          },
+          "snippet": {
+            "type": "string",
+            "description": "Verbatim text the value came from"
+          },
+          "extraction_method": {
+            "type": "string",
+            "enum": [
+              "native",
+              "ocr",
+              "vision"
+            ]
+          }
+        }
+      },
+      "description": "Where each important value was found."
+    }
+  },
+  "required": [
+    "confidence",
+    "human_verification_items"
+  ]
+}

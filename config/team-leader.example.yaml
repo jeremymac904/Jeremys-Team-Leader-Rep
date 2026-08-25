@@ -1,0 +1,137 @@
+# ---------------------------------------------------------------------------
+# WHO YOU ARE — Team Leader profile
+#
+# Copy this file to config/team-leader.yaml and edit it, or let the setup
+# script ask you these questions:  python3 scripts/setup.py
+#
+# config/team-leader.yaml is gitignored. This .example file is the template
+# that ships with the repository, so keep fictional values here.
+# ---------------------------------------------------------------------------
+schema_version: 1
+kind: team-leader-profile
+
+# --- Identity ---------------------------------------------------------------
+identity:
+  team_leader_name: "Avery Sample"
+  team_name: "Northstar Lending Team"
+  title: "Team Leader / Producing Loan Officer"
+  email: "avery@example-northstar.test"
+  phone: "555-0100"
+  team_leader_nmls: "0000000"
+  company_nmls: "0000001"
+  company: "Loan Factory"
+  timezone: "America/New_York"
+  working_hours: "7:30am - 5:30pm, Mon-Fri"
+
+# --- Where you do business --------------------------------------------------
+market:
+  team_states: ["FL", "GA"]
+  primary_market: "Jacksonville, FL metro"
+  mortgage_specialties:
+    - "Conventional purchase"
+    - "FHA first-time buyer"
+    - "VA"
+    - "Self-employed / bank statement"
+    - "Investment property (DSCR)"
+
+# --- What you are trying to do ----------------------------------------------
+goals:
+  production_goals:
+    team_units_per_month: 30
+    team_volume_per_month_usd: 12000000
+    personal_units_per_month: 6
+  team_goals:
+    - "Every LO holds 5 real conversations per day"
+    - "Every LO books one Realtor coffee per week"
+    - "No file sits without borrower contact for 3 business days"
+  recruiting_goals:
+    hires_per_quarter: 2
+    target_profile: "Licensed LO with 12+ months experience and an existing agent relationship"
+  marketing_goals:
+    - "One team market-update video per week"
+    - "One Realtor education session per month"
+
+  # The handful of numbers you actually manage by. The agent ranks and reports
+  # against these rather than inventing its own scoreboard.
+  kpis:
+    - "Real conversations per LO per day"
+    - "Appointments set per LO per week"
+    - "Applications per LO per week"
+    - "Pull-through: applications to closings"
+    - "Realtor meetings per LO per week"
+    - "Days since last borrower contact on active files"
+
+# --- How you lead -----------------------------------------------------------
+leadership:
+  coaching_style: "direct-supportive"      # direct-supportive | socratic | structured | hands-off
+  preferred_communication_style: "short, specific, no filler; lead with the number"
+  team_culture: "High standards, high support. Coach the activity before judging the result."
+  accountability_standards:
+    - "Scorecard submitted every Friday by 3pm"
+    - "Two consecutive missed weeks triggers a development plan conversation"
+    - "Attendance at the weekly team meeting is not optional"
+  escalation_preferences:
+    - "Tell me same-day about any file at risk of missing a contract closing date"
+    - "Tell me same-day about any borrower or agent complaint"
+    - "Everything else can wait for the weekly review"
+
+# --- Your calendar ----------------------------------------------------------
+schedule:
+  meeting_schedule:
+    - name: "Team huddle"
+      cadence: "Daily"
+      day: "Mon-Fri"
+      time: "08:30"
+      duration_minutes: 15
+    - name: "Full team meeting"
+      cadence: "Weekly"
+      day: "Monday"
+      time: "09:00"
+      duration_minutes: 60
+    - name: "One-on-one coaching"
+      cadence: "Weekly"
+      day: "Wednesday"
+      time: "13:00"
+      duration_minutes: 30
+    - name: "Pipeline review"
+      cadence: "Weekly"
+      day: "Tuesday"
+      time: "10:00"
+      duration_minutes: 45
+  training_schedule:
+    - name: "Skill / role-play session"
+      cadence: "Weekly"
+      day: "Thursday"
+      time: "09:00"
+    - name: "Product & guideline update"
+      cadence: "Monthly"
+      day: "First Tuesday"
+      time: "14:00"
+  recurring_responsibilities:
+    - "Friday: read every scorecard before close of business"
+    - "First Monday of the month: monthly production review"
+    - "Quarterly: business planning session with each LO"
+
+# --- What the agent is and is not allowed to do -----------------------------
+# These are enforced as instructions to the agent AND reflected in the Hermes
+# profile it runs under. Read docs/automation-safety.md before loosening them.
+permissions:
+  allowed_without_asking:
+    - "Read files inside this repository and your team-data directory"
+    - "Draft documents, agendas, plans, scripts, and summaries"
+    - "Analyze numbers you paste or point it at"
+    - "Research public information and cite sources with dates"
+    - "Prepare messages for you to review"
+  never_without_approval:
+    - "Send email, SMS, or any message to anyone"
+    - "Contact a borrower, Realtor, candidate, or team member"
+    - "Change a CRM or LOS record"
+    - "Publish or post content anywhere"
+    - "Create or activate a scheduled/cron job"
+    - "Run a command that modifies or deletes files outside this repository"
+    - "Spend money"
+  never_at_all:
+    - "Make a lending, credit, pricing, underwriting, or eligibility decision"
+    - "Quote a rate or fee to a borrower"
+    - "Represent itself as underwriting, compliance, legal, or accounting"
+    - "Write private team or borrower information into a public repository"

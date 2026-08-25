@@ -1,0 +1,186 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://loanfactory.local/schemas/paystub.json",
+  "title": "Paystub",
+  "description": "Fields extracted from a pay stub / earnings statement.  EXTRACTION ONLY \u2014 this is not an underwriting decision.",
+  "type": "object",
+  "properties": {
+    "employee_name": {
+      "type": "string",
+      "description": "Employee full name"
+    },
+    "employer_name": {
+      "type": "string",
+      "description": "Employer name"
+    },
+    "employer_address": {
+      "type": "string",
+      "description": "Employer address if shown"
+    },
+    "pay_period_start": {
+      "type": "string",
+      "description": "Pay period start (as written, e.g. '07/20/2026')"
+    },
+    "pay_period_end": {
+      "type": "string",
+      "description": "Pay period end (as written, e.g. '07/20/2026')"
+    },
+    "pay_date": {
+      "type": "string",
+      "description": "Pay date (as written, e.g. '07/20/2026')"
+    },
+    "pay_frequency": {
+      "type": "string",
+      "description": "weekly | bi-weekly | semi-monthly | monthly | other"
+    },
+    "hourly_rate": {
+      "type": "string",
+      "description": "Base hourly rate (as written on the document, e.g. '3,109.28')"
+    },
+    "hours_worked": {
+      "type": "string",
+      "description": "Hours in this period"
+    },
+    "base_pay_current": {
+      "type": "string",
+      "description": "Current-period base pay (as written on the document, e.g. '3,109.28')"
+    },
+    "overtime_current": {
+      "type": "string",
+      "description": "Current-period overtime (as written on the document, e.g. '3,109.28')"
+    },
+    "bonus_current": {
+      "type": "string",
+      "description": "Current-period bonus (as written on the document, e.g. '3,109.28')"
+    },
+    "commission_current": {
+      "type": "string",
+      "description": "Current-period commission (as written on the document, e.g. '3,109.28')"
+    },
+    "other_income_current": {
+      "type": "string",
+      "description": "Other current income (as written on the document, e.g. '3,109.28')"
+    },
+    "gross_pay_current": {
+      "type": "string",
+      "description": "Current-period gross (as written on the document, e.g. '3,109.28')"
+    },
+    "net_pay_current": {
+      "type": "string",
+      "description": "Current-period net (as written on the document, e.g. '3,109.28')"
+    },
+    "ytd_base": {
+      "type": "string",
+      "description": "YTD base income (as written on the document, e.g. '3,109.28')"
+    },
+    "ytd_overtime": {
+      "type": "string",
+      "description": "YTD overtime (as written on the document, e.g. '3,109.28')"
+    },
+    "ytd_bonus": {
+      "type": "string",
+      "description": "YTD bonus (as written on the document, e.g. '3,109.28')"
+    },
+    "ytd_commission": {
+      "type": "string",
+      "description": "YTD commission (as written on the document, e.g. '3,109.28')"
+    },
+    "ytd_gross": {
+      "type": "string",
+      "description": "YTD total earnings (as written on the document, e.g. '3,109.28')"
+    },
+    "deductions": {
+      "type": "array",
+      "description": "Deduction lines",
+      "items": {
+        "type": "object",
+        "properties": {
+          "description": {
+            "type": "string"
+          },
+          "current": {
+            "type": "string"
+          },
+          "ytd": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "possible_garnishments": {
+      "type": "array",
+      "description": "Lines that may be garnishments",
+      "items": {
+        "type": "string"
+      }
+    },
+    "possible_loan_deductions": {
+      "type": "array",
+      "description": "Deductions that may indicate an undisclosed debt",
+      "items": {
+        "type": "string"
+      }
+    },
+    "potential_inconsistencies": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Observations that look inconsistent. NOT conclusions."
+    },
+    "missing_information": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Fields the document should contain but does not."
+    },
+    "human_verification_items": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Things a human must confirm against the source before relying on them."
+    },
+    "confidence": {
+      "type": "string",
+      "enum": [
+        "high",
+        "moderate",
+        "low",
+        "needs_human_verification"
+      ]
+    },
+    "source_references": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "field": {
+            "type": "string"
+          },
+          "page": {
+            "type": "integer"
+          },
+          "snippet": {
+            "type": "string",
+            "description": "Verbatim text the value came from"
+          },
+          "extraction_method": {
+            "type": "string",
+            "enum": [
+              "native",
+              "ocr",
+              "vision"
+            ]
+          }
+        }
+      },
+      "description": "Where each important value was found."
+    }
+  },
+  "required": [
+    "confidence",
+    "human_verification_items"
+  ]
+}

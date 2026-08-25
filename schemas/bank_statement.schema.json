@@ -1,0 +1,206 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://loanfactory.local/schemas/bank_statement.json",
+  "title": "Bank Statement",
+  "description": "Fields extracted from a bank or asset statement.  EXTRACTION ONLY \u2014 this is not an underwriting decision.",
+  "type": "object",
+  "properties": {
+    "institution": {
+      "type": "string",
+      "description": "Financial institution"
+    },
+    "account_owner": {
+      "type": "string",
+      "description": "Account holder name(s)"
+    },
+    "account_type": {
+      "type": "string",
+      "description": "checking | savings | money market | other"
+    },
+    "account_number_masked": {
+      "type": "string",
+      "description": "Masked account number only. NEVER record a full account number."
+    },
+    "statement_period_start": {
+      "type": "string",
+      "description": "Statement period start (as written, e.g. '07/20/2026')"
+    },
+    "statement_period_end": {
+      "type": "string",
+      "description": "Statement period end (as written, e.g. '07/20/2026')"
+    },
+    "beginning_balance": {
+      "type": "string",
+      "description": "Beginning balance (as written on the document, e.g. '3,109.28')"
+    },
+    "ending_balance": {
+      "type": "string",
+      "description": "Ending balance (as written on the document, e.g. '3,109.28')"
+    },
+    "average_balance": {
+      "type": "string",
+      "description": "Average balance if shown (as written on the document, e.g. '3,109.28')"
+    },
+    "total_deposits": {
+      "type": "string",
+      "description": "Total deposits (as written on the document, e.g. '3,109.28')"
+    },
+    "total_withdrawals": {
+      "type": "string",
+      "description": "Total withdrawals (as written on the document, e.g. '3,109.28')"
+    },
+    "large_deposits": {
+      "type": "array",
+      "description": "Non-payroll deposits that may need sourcing",
+      "items": {
+        "type": "object",
+        "properties": {
+          "date": {
+            "type": "string"
+          },
+          "amount": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "why_flagged": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "recurring_deposits": {
+      "type": "array",
+      "description": "Deposits that repeat",
+      "items": {
+        "type": "object",
+        "properties": {
+          "description": {
+            "type": "string"
+          },
+          "amount": {
+            "type": "string"
+          },
+          "frequency": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "payroll_deposits": {
+      "type": "array",
+      "description": "Deposits that appear to be payroll",
+      "items": {
+        "type": "object",
+        "properties": {
+          "date": {
+            "type": "string"
+          },
+          "amount": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "transfers": {
+      "type": "array",
+      "description": "Transfers in or out",
+      "items": {
+        "type": "string"
+      }
+    },
+    "possible_nsf": {
+      "type": "array",
+      "description": "Possible insufficient-funds or overdraft items",
+      "items": {
+        "type": "string"
+      }
+    },
+    "possible_undisclosed_debt": {
+      "type": "array",
+      "description": "Recurring debits that may indicate an undisclosed obligation",
+      "items": {
+        "type": "string"
+      }
+    },
+    "possible_sourcing_issues": {
+      "type": "array",
+      "description": "Deposits that may require documentation of source",
+      "items": {
+        "type": "string"
+      }
+    },
+    "missing_pages": {
+      "type": "array",
+      "description": "Evidence of missing statement pages",
+      "items": {
+        "type": "string"
+      }
+    },
+    "potential_inconsistencies": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Observations that look inconsistent. NOT conclusions."
+    },
+    "missing_information": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Fields the document should contain but does not."
+    },
+    "human_verification_items": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Things a human must confirm against the source before relying on them."
+    },
+    "confidence": {
+      "type": "string",
+      "enum": [
+        "high",
+        "moderate",
+        "low",
+        "needs_human_verification"
+      ]
+    },
+    "source_references": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "field": {
+            "type": "string"
+          },
+          "page": {
+            "type": "integer"
+          },
+          "snippet": {
+            "type": "string",
+            "description": "Verbatim text the value came from"
+          },
+          "extraction_method": {
+            "type": "string",
+            "enum": [
+              "native",
+              "ocr",
+              "vision"
+            ]
+          }
+        }
+      },
+      "description": "Where each important value was found."
+    }
+  },
+  "required": [
+    "confidence",
+    "human_verification_items"
+  ]
+}

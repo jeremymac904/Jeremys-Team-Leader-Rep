@@ -1,0 +1,85 @@
+# ---------------------------------------------------------------------------
+# Hermes Agent config for the Team Leader profile.
+#
+# scripts/sync_agent.py copies this to  hermes-home/config.yaml  and fills in
+# ${REPO_PATH}. hermes-home/ is this repository's own private HERMES_HOME, so
+# nothing here can touch ~/.hermes or any other Hermes install on your machine.
+#
+# Every key below was verified against the Hermes Agent source (v0.14.x).
+# Defaults are deliberately locked down — read docs/automation-safety.md
+# before loosening any of them.
+# ---------------------------------------------------------------------------
+
+# ---------------------------------------------------------------------------
+# SKILLS — loaded straight from this repository, no copying
+#
+# `skills.external_dirs` is Hermes's supported mechanism for reading skills
+# from outside ~/.hermes/skills/. We point it at this repository's skills/
+# folder, which means:
+#
+#   * git pull updates your skills instantly — nothing to re-copy
+#   * editing a SKILL.md here takes effect on the next Hermes run
+#   * external dirs are READ-ONLY to Hermes: when the agent creates a new
+#     skill it writes to hermes-home/skills/, never back into your git repo
+#   * if a name collides, the local skill wins over the external one
+# ---------------------------------------------------------------------------
+skills:
+  external_dirs:
+    - "${REPO_PATH}/skills"
+
+# Leave empty to use whatever model you configured during `hermes setup`.
+model: {}
+
+agent:
+  # Toolsets that can take real-world action are OFF.
+  # Note what is NOT in this list and therefore stays available:
+  #   file    — so the agent can read your config, roster, and skills
+  #   skills  — so it can use the 14 skills in agent/skills/
+  #   web     — research, if you enabled it at setup
+  #   todo, memory, clarify
+  # Verified against the toolset names Hermes actually accepts. Run
+  # `python3 scripts/validate.py` after editing — it checks these names
+  # against the installed Hermes and fails on a typo, because a misspelled
+  # toolset here is silently ignored rather than disabled.
+  disabled_toolsets:
+    - terminal
+    - browser
+    - code_execution
+    - discord
+    - discord_admin
+    - cronjob
+    - computer_use
+
+approvals:
+  mode: manual              # confirm every action-taking tool call
+  timeout: 300
+  cron_mode: deny           # dangerous commands in cron jobs are blocked
+  mcp_reload_confirm: true
+
+security:
+  redact_secrets: true
+
+privacy:
+  redact_pii: true          # hash user IDs and strip phone numbers from context
+
+terminal:
+  # The terminal toolset is disabled above; this only scopes the working
+  # directory if you ever enable it.
+  backend: local
+  cwd: "${REPO_PATH}"
+
+# ---------------------------------------------------------------------------
+# MCP servers
+#
+# Empty on purpose. This repository does not ship a working connector to any
+# external system, and an empty map is the honest representation of that.
+# Add your own here when you have one. Example shape:
+#
+# mcp_servers:
+#   my_crm:
+#     command: "/absolute/path/to/python"
+#     args: ["-m", "my_crm_mcp.server"]
+#     tools:
+#       include: [crm_search, crm_get_pipeline_summary]
+# ---------------------------------------------------------------------------
+mcp_servers: {}

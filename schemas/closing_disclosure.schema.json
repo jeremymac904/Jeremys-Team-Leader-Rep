@@ -1,0 +1,174 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://loanfactory.local/schemas/closing_disclosure.json",
+  "title": "Closing Disclosure",
+  "description": "Fields extracted from a Closing Disclosure, including LE-vs-CD comparison points.  EXTRACTION ONLY \u2014 this is not an underwriting decision.",
+  "type": "object",
+  "properties": {
+    "borrower_name": {
+      "type": "string",
+      "description": "Borrower"
+    },
+    "property_address": {
+      "type": "string",
+      "description": "Property"
+    },
+    "closing_date": {
+      "type": "string",
+      "description": "Closing date (as written, e.g. '07/20/2026')"
+    },
+    "disbursement_date": {
+      "type": "string",
+      "description": "Disbursement date (as written, e.g. '07/20/2026')"
+    },
+    "loan_amount": {
+      "type": "string",
+      "description": "Loan amount (as written on the document, e.g. '3,109.28')"
+    },
+    "interest_rate": {
+      "type": "string",
+      "description": "Interest rate"
+    },
+    "loan_term": {
+      "type": "string",
+      "description": "Loan term"
+    },
+    "monthly_principal_interest": {
+      "type": "string",
+      "description": "Monthly P&I (as written on the document, e.g. '3,109.28')"
+    },
+    "total_monthly_payment": {
+      "type": "string",
+      "description": "Total estimated monthly payment (as written on the document, e.g. '3,109.28')"
+    },
+    "total_loan_costs": {
+      "type": "string",
+      "description": "Total loan costs (D) (as written on the document, e.g. '3,109.28')"
+    },
+    "total_other_costs": {
+      "type": "string",
+      "description": "Total other costs (I) (as written on the document, e.g. '3,109.28')"
+    },
+    "total_closing_costs": {
+      "type": "string",
+      "description": "Total closing costs (J) (as written on the document, e.g. '3,109.28')"
+    },
+    "lender_credits": {
+      "type": "string",
+      "description": "Lender credits (as written on the document, e.g. '3,109.28')"
+    },
+    "prepaids": {
+      "type": "string",
+      "description": "Prepaids (as written on the document, e.g. '3,109.28')"
+    },
+    "initial_escrow": {
+      "type": "string",
+      "description": "Initial escrow payment (as written on the document, e.g. '3,109.28')"
+    },
+    "escrow_monthly": {
+      "type": "string",
+      "description": "Monthly escrow (as written on the document, e.g. '3,109.28')"
+    },
+    "cash_to_close": {
+      "type": "string",
+      "description": "Cash to close (as written on the document, e.g. '3,109.28')"
+    },
+    "seller_credits": {
+      "type": "string",
+      "description": "Seller credits (as written on the document, e.g. '3,109.28')"
+    },
+    "payoffs": {
+      "type": "array",
+      "description": "Payoffs shown",
+      "items": {
+        "type": "string"
+      }
+    },
+    "le_vs_cd_comparison": {
+      "type": "array",
+      "description": "Fields to compare against the Loan Estimate",
+      "items": {
+        "type": "object",
+        "properties": {
+          "field": {
+            "type": "string"
+          },
+          "cd_value": {
+            "type": "string"
+          },
+          "note": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "potential_discrepancies": {
+      "type": "array",
+      "description": "Differences that need review",
+      "items": {
+        "type": "string"
+      }
+    },
+    "potential_inconsistencies": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Observations that look inconsistent. NOT conclusions."
+    },
+    "missing_information": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Fields the document should contain but does not."
+    },
+    "human_verification_items": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Things a human must confirm against the source before relying on them."
+    },
+    "confidence": {
+      "type": "string",
+      "enum": [
+        "high",
+        "moderate",
+        "low",
+        "needs_human_verification"
+      ]
+    },
+    "source_references": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "field": {
+            "type": "string"
+          },
+          "page": {
+            "type": "integer"
+          },
+          "snippet": {
+            "type": "string",
+            "description": "Verbatim text the value came from"
+          },
+          "extraction_method": {
+            "type": "string",
+            "enum": [
+              "native",
+              "ocr",
+              "vision"
+            ]
+          }
+        }
+      },
+      "description": "Where each important value was found."
+    }
+  },
+  "required": [
+    "confidence",
+    "human_verification_items"
+  ]
+}

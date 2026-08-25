@@ -1,0 +1,130 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://loanfactory.local/schemas/mortgage_statement.json",
+  "title": "Mortgage Statement",
+  "description": "Fields extracted from a monthly mortgage statement.  EXTRACTION ONLY \u2014 this is not an underwriting decision.",
+  "type": "object",
+  "properties": {
+    "servicer": {
+      "type": "string",
+      "description": "Servicer name"
+    },
+    "borrower_name": {
+      "type": "string",
+      "description": "Borrower"
+    },
+    "property_address": {
+      "type": "string",
+      "description": "Property if shown"
+    },
+    "loan_number_masked": {
+      "type": "string",
+      "description": "Masked loan number only"
+    },
+    "statement_date": {
+      "type": "string",
+      "description": "Statement date (as written, e.g. '07/20/2026')"
+    },
+    "payment_due_date": {
+      "type": "string",
+      "description": "Payment due date (as written, e.g. '07/20/2026')"
+    },
+    "amount_due": {
+      "type": "string",
+      "description": "Total amount due (as written on the document, e.g. '3,109.28')"
+    },
+    "principal_balance": {
+      "type": "string",
+      "description": "Outstanding principal balance (as written on the document, e.g. '3,109.28')"
+    },
+    "interest_rate": {
+      "type": "string",
+      "description": "Interest rate"
+    },
+    "escrow_balance": {
+      "type": "string",
+      "description": "Escrow balance (as written on the document, e.g. '3,109.28')"
+    },
+    "principal_portion": {
+      "type": "string",
+      "description": "Principal portion of payment (as written on the document, e.g. '3,109.28')"
+    },
+    "interest_portion": {
+      "type": "string",
+      "description": "Interest portion of payment (as written on the document, e.g. '3,109.28')"
+    },
+    "escrow_portion": {
+      "type": "string",
+      "description": "Escrow portion of payment (as written on the document, e.g. '3,109.28')"
+    },
+    "past_due_amount": {
+      "type": "string",
+      "description": "Past due amount if any (as written on the document, e.g. '3,109.28')"
+    },
+    "late_fees": {
+      "type": "string",
+      "description": "Late fees if any (as written on the document, e.g. '3,109.28')"
+    },
+    "potential_inconsistencies": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Observations that look inconsistent. NOT conclusions."
+    },
+    "missing_information": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Fields the document should contain but does not."
+    },
+    "human_verification_items": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Things a human must confirm against the source before relying on them."
+    },
+    "confidence": {
+      "type": "string",
+      "enum": [
+        "high",
+        "moderate",
+        "low",
+        "needs_human_verification"
+      ]
+    },
+    "source_references": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "field": {
+            "type": "string"
+          },
+          "page": {
+            "type": "integer"
+          },
+          "snippet": {
+            "type": "string",
+            "description": "Verbatim text the value came from"
+          },
+          "extraction_method": {
+            "type": "string",
+            "enum": [
+              "native",
+              "ocr",
+              "vision"
+            ]
+          }
+        }
+      },
+      "description": "Where each important value was found."
+    }
+  },
+  "required": [
+    "confidence",
+    "human_verification_items"
+  ]
+}

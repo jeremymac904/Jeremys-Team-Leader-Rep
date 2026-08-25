@@ -1,0 +1,108 @@
+# ---------------------------------------------------------------------------
+# YOUR TEAM — roster and standards
+#
+# ⚠️  PRIVACY: Your real roster contains people's names, emails, phone numbers,
+#     and NMLS IDs. That is private employee information.
+#
+#     Put your REAL roster in:   team-data/team.yaml     (gitignored)
+#     Keep this .example file fictional. Everyone below is invented.
+#
+#     Copy to start:  cp config/team.example.yaml team-data/team.yaml
+# ---------------------------------------------------------------------------
+schema_version: 1
+kind: team-roster
+
+members:
+  - id: "lo-jordan-reyes"
+    name: "Jordan Reyes"
+    role: "Loan Officer"
+    experience_level: "new"            # new | developing | established | top-producer
+    tenure_months: 5
+    nmls: "0000100"
+    states: ["FL"]
+    focus: "Building a database from scratch; first-time buyers"
+    coaching_track: "lo-mastery"       # see coaching/frameworks/
+    goals:
+      units_per_month: 3
+      conversations_per_day: 25
+    strengths:
+      - "Extremely coachable"
+      - "Follows the daily block without being reminded"
+    development_areas:
+      - "Freezes on the rate objection"
+      - "Does not ask for the appointment"
+    notes: "Fictional example. Replace with your own team in team-data/team.yaml."
+
+  - id: "lo-sam-okafor"
+    name: "Sam Okafor"
+    role: "Loan Officer"
+    experience_level: "established"
+    tenure_months: 38
+    nmls: "0000101"
+    states: ["FL", "GA"]
+    focus: "Realtor-driven purchase business"
+    coaching_track: "alliance"
+    goals:
+      units_per_month: 8
+      realtor_meetings_per_week: 2
+    strengths:
+      - "Best consultation on the team"
+      - "Agents trust the follow-through"
+    development_areas:
+      - "Pipeline goes quiet when personal production gets busy"
+      - "Has not added a new A-tier agent in two quarters"
+    notes: "Fictional example."
+
+  - id: "lo-priya-nakamura"
+    name: "Priya Nakamura"
+    role: "Loan Officer"
+    experience_level: "top-producer"
+    tenure_months: 71
+    nmls: "0000102"
+    states: ["FL"]
+    focus: "Self-employed and investor borrowers"
+    coaching_track: "alliance"
+    goals:
+      units_per_month: 12
+    strengths:
+      - "Structures the hard files nobody else will touch"
+      - "Referral-driven; almost no cold activity needed"
+    development_areas:
+      - "Resists team process; scorecard is usually late"
+      - "Bottlenecked — needs to delegate or hire support"
+    notes: "Fictional example."
+
+  - id: "proc-dana-whitfield"
+    name: "Dana Whitfield"
+    role: "Processor"
+    experience_level: "established"
+    tenure_months: 44
+    supports: ["lo-jordan-reyes", "lo-sam-okafor", "lo-priya-nakamura"]
+    notes: "Fictional example."
+
+  - id: "coord-miles-ferrante"
+    name: "Miles Ferrante"
+    role: "Loan Coordinator"
+    experience_level: "developing"
+    tenure_months: 9
+    supports: ["lo-priya-nakamura"]
+    notes: "Fictional example."
+
+# --- Standards that apply to everyone ---------------------------------------
+standards:
+  scorecard_due: "Friday 15:00"
+  minimum_conversations_per_day: 15
+  minimum_realtor_meetings_per_week: 1
+  borrower_contact_sla_days: 3
+  meeting_attendance: "required"
+
+# --- People you are recruiting ----------------------------------------------
+# Candidate records are sensitive. Keep real candidates in team-data/ only.
+recruiting_pipeline:
+  - id: "cand-riley-tran"
+    name: "Riley Tran"
+    stage: "first conversation"       # sourced | first conversation | interview | offer | onboarding
+    source: "Referral from Sam Okafor"
+    current_company: "Fictional Mortgage Co."
+    est_units_per_month: 5
+    notes: "Fictional example. Never store real candidate detail in a public repo."

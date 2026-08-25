@@ -1,0 +1,202 @@
+# ---------------------------------------------------------------------------
+# LOCAL MODEL MANIFEST
+#
+# The curated set of local models this system will download and run. You are
+# not expected to go find models yourself — this is the reviewed list.
+#
+# Every repository, filename, size, and license below was verified against the
+# Hugging Face API on the date_reviewed shown. Sizes are the real file sizes
+# reported by the Hub, not estimates.
+#
+# NO MODEL WEIGHTS ARE STORED IN THIS REPOSITORY. This file describes what to
+# download; scripts/local_ai/setup_local_ai.py downloads it to local_data/models/,
+# which is gitignored.
+#
+# To change models later, edit this file. Nothing else needs to be rewritten.
+# ---------------------------------------------------------------------------
+schema_version: 1
+kind: local-model-manifest
+date_reviewed: "2026-08-25"
+inference_engine: llama.cpp
+
+# --- Hardware tiers --------------------------------------------------------
+# Non-standard memory sizes round DOWN to the nearest supported tier, so a
+# 12 GB machine gets the 8 GB tier. Never pick a model that needs almost all
+# of physical memory — the OS, Hermes, extraction, and context all need room.
+tiers:
+  - id: tier-8gb
+    name: "Basic — 8 GB"
+    min_ram_gb: 8
+    reasoning_model: qwen3-vl-4b-q4
+    extraction_model: nuextract3-q4
+    max_context: 8192
+    headroom_note: "Load one model at a time. Expect slower multi-page work."
+    use_case: "Paystubs, W2s, simple bank statements, short contracts, single scanned pages."
+
+  - id: tier-16gb
+    name: "Standard — 16 GB (recommended mainstream)"
+    min_ram_gb: 16
+    reasoning_model: qwen3-vl-8b-q4
+    extraction_model: nuextract3-q4
+    max_context: 16384
+    headroom_note: "Both models can be resident if nothing else large is running."
+    use_case: "Multiple paystubs, W2 comparison, bank statement review, purchase contracts, Loan Estimates, moderate multi-page sets."
+
+  - id: tier-24gb
+    name: "Higher quality — 24 GB"
+    min_ram_gb: 24
+    reasoning_model: qwen3-vl-8b-q8
+    extraction_model: nuextract3-q4
+    max_context: 32768
+    headroom_note: "Same 8B model as the 16 GB tier, at higher precision — deliberately not a bigger model."
+    use_case: "Higher-quality review, more context, more pages, several documents at once."
+
+  - id: tier-32gb
+    name: "Advanced — 32 GB and above"
+    min_ram_gb: 32
+    reasoning_model: qwen3-vl-30b-a3b-q4
+    extraction_model: nuextract3-q4
+    max_context: 32768
+    headroom_note: "Mixture-of-Experts: 30B total but only ~3B active per token, so it runs far lighter than a dense 30B."
+    use_case: "Cross-document comparison, long purchase contracts, complex income and asset review assistance."
+
+# --- Models ----------------------------------------------------------------
+models:
+
+  - id: qwen3-vl-4b-q4
+    display_name: "Qwen3-VL 4B Instruct (Q4_K_M)"
+    family: "Qwen3-VL"
+    role: reasoning-vision
+    hf_repo: "Qwen/Qwen3-VL-4B-Instruct-GGUF"
+    gguf_file: "Qwen3VL-4B-Instruct-Q4_K_M.gguf"
+    mmproj_file: "mmproj-Qwen3VL-4B-Instruct-Q8_0.gguf"
+    parameters: "4B"
+    active_parameters: "4B (dense)"
+    quantization: "Q4_K_M"
+    download_size_gb: 2.95
+    ram_required_gb: 6
+    recommended_tier: tier-8gb
+    context_guidance: "8k comfortable at this tier. The model supports far more; memory is the limit."
+    vision: true
+    llama_cpp_compatible: true
+    structured_output: true
+    document_analysis: "Adequate for single-page, clean documents. Weaker on dense tables and poor scans."
+    use_case: "Basic local document review on small machines."
+    limitations:
+      - "Noticeably weaker at multi-page reasoning than the 8B"
+      - "Table extraction from scanned pages is unreliable — verify everything"
+    license: apache-2.0
+    commercial_use: "Permitted under Apache-2.0."
+    status: recommended
+    date_reviewed: "2026-08-25"
+
+  - id: qwen3-vl-8b-q4
+    display_name: "Qwen3-VL 8B Instruct (Q4_K_M)"
+    family: "Qwen3-VL"
+    role: reasoning-vision
+    hf_repo: "Qwen/Qwen3-VL-8B-Instruct-GGUF"
+    gguf_file: "Qwen3VL-8B-Instruct-Q4_K_M.gguf"
+    mmproj_file: "mmproj-Qwen3VL-8B-Instruct-Q8_0.gguf"
+    parameters: "8B"
+    active_parameters: "8B (dense)"
+    quantization: "Q4_K_M"
+    download_size_gb: 5.78
+    ram_required_gb: 10
+    recommended_tier: tier-16gb
+    context_guidance: "16k is comfortable on 16 GB."
+    vision: true
+    llama_cpp_compatible: true
+    structured_output: true
+    document_analysis: "Good. The mainstream recommendation for mortgage document work."
+    use_case: "Standard Team Leader local document review."
+    limitations:
+      - "Q4 quantization can occasionally misread digits on low-quality scans"
+      - "Always verify dollar amounts and dates against the source document"
+    license: apache-2.0
+    commercial_use: "Permitted under Apache-2.0."
+    status: recommended
+    date_reviewed: "2026-08-25"
+
+  - id: qwen3-vl-8b-q8
+    display_name: "Qwen3-VL 8B Instruct (Q8_0)"
+    family: "Qwen3-VL"
+    role: reasoning-vision
+    hf_repo: "Qwen/Qwen3-VL-8B-Instruct-GGUF"
+    gguf_file: "Qwen3VL-8B-Instruct-Q8_0.gguf"
+    mmproj_file: "mmproj-Qwen3VL-8B-Instruct-F16.gguf"
+    parameters: "8B"
+    active_parameters: "8B (dense)"
+    quantization: "Q8_0"
+    download_size_gb: 9.87
+    ram_required_gb: 14
+    recommended_tier: tier-24gb
+    context_guidance: "32k is workable on 24 GB with headroom for extraction."
+    vision: true
+    llama_cpp_compatible: true
+    structured_output: true
+    document_analysis: "Better digit and table fidelity than Q4 — the reason to spend the extra memory."
+    use_case: "Higher-quality local review on 24 GB machines."
+    limitations:
+      - "Roughly twice the memory of Q4 for a modest accuracy gain"
+      - "Still requires human verification of every figure"
+    license: apache-2.0
+    commercial_use: "Permitted under Apache-2.0."
+    status: recommended
+    date_reviewed: "2026-08-25"
+
+  - id: qwen3-vl-30b-a3b-q4
+    display_name: "Qwen3-VL 30B-A3B Instruct (Q4_K_M)"
+    family: "Qwen3-VL"
+    role: reasoning-vision
+    hf_repo: "Qwen/Qwen3-VL-30B-A3B-Instruct-GGUF"
+    gguf_file: "Qwen3VL-30B-A3B-Instruct-Q4_K_M.gguf"
+    mmproj_file: "mmproj-Qwen3VL-30B-A3B-Instruct-Q8_0.gguf"
+    parameters: "30B total"
+    active_parameters: "~3B active per token (Mixture of Experts)"
+    quantization: "Q4_K_M"
+    download_size_gb: 19.27
+    ram_required_gb: 24
+    recommended_tier: tier-32gb
+    context_guidance: "32k on 32 GB. Leave real headroom — this is a large resident model."
+    vision: true
+    llama_cpp_compatible: true
+    structured_output: true
+    document_analysis: "Strongest local option here for cross-document reasoning."
+    use_case: "Advanced local mortgage document reasoning and document-set comparison."
+    limitations:
+      - "~19 GB download"
+      - "MoE means low active compute but the FULL model must fit in memory"
+      - "NOT VALIDATED on this project's hardware — see local-ai/VALIDATION.md"
+    license: apache-2.0
+    commercial_use: "Permitted under Apache-2.0."
+    status: recommended-untested
+    date_reviewed: "2026-08-25"
+
+  - id: nuextract3-q4
+    display_name: "NuExtract 3 (Q4_K_M)"
+    family: "NuExtract"
+    role: structured-extraction
+    hf_repo: "numind/NuExtract3-GGUF"
+    gguf_file: "NuExtract3-Q4_K_M.gguf"
+    mmproj_file: "mmproj-NuExtract3-BF16.gguf"
+    parameters: "4B"
+    active_parameters: "4B (dense)"
+    quantization: "Q4_K_M"
+    download_size_gb: 3.46
+    ram_required_gb: 6
+    recommended_tier: all
+    context_guidance: "Runs per-document, not on whole sets. Keep inputs to one document."
+    vision: true
+    llama_cpp_compatible: true
+    structured_output: true
+    document_analysis: "Purpose-built for schema-driven extraction — its whole job."
+    use_case: "Turning a document into structured fields against a mortgage schema, so the general model is not doing low-level extraction."
+    limitations:
+      - "Extraction only. It does not reason about what the numbers mean."
+      - "Built on Qwen3.5-4B; inherits that model's limits"
+      - "Its output is a starting point for human verification, never a finding"
+    license: apache-2.0
+    commercial_use: "Permitted under Apache-2.0."
+    status: recommended
+    date_reviewed: "2026-08-25"
+    notes: "Base model numind/NuExtract3 is derived from Qwen/Qwen3.5-4B."

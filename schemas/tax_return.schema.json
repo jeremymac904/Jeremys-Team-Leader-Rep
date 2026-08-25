@@ -1,0 +1,183 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://loanfactory.local/schemas/tax_return.json",
+  "title": "Tax Return",
+  "description": "Indicators extracted from an individual tax return. Review assistance only \u2014 this does NOT calculate qualifying income.  EXTRACTION ONLY \u2014 this is not an underwriting decision.",
+  "type": "object",
+  "properties": {
+    "tax_year": {
+      "type": "string",
+      "description": "Tax year"
+    },
+    "taxpayer_name": {
+      "type": "string",
+      "description": "Taxpayer name"
+    },
+    "filing_status": {
+      "type": "string",
+      "description": "Filing status"
+    },
+    "total_income": {
+      "type": "string",
+      "description": "Total income (as written on the document, e.g. '3,109.28')"
+    },
+    "adjusted_gross_income": {
+      "type": "string",
+      "description": "AGI (as written on the document, e.g. '3,109.28')"
+    },
+    "wages": {
+      "type": "string",
+      "description": "Wages line (as written on the document, e.g. '3,109.28')"
+    },
+    "business_income": {
+      "type": "string",
+      "description": "Business income line (as written on the document, e.g. '3,109.28')"
+    },
+    "rental_income": {
+      "type": "string",
+      "description": "Rental/royalty income line (as written on the document, e.g. '3,109.28')"
+    },
+    "capital_gains": {
+      "type": "string",
+      "description": "Capital gains line (as written on the document, e.g. '3,109.28')"
+    },
+    "schedules_present": {
+      "type": "array",
+      "description": "Schedules attached (C, E, F, K-1, etc.)",
+      "items": {
+        "type": "string"
+      }
+    },
+    "schedule_c_indicators": {
+      "type": "array",
+      "description": "Self-employment indicators",
+      "items": {
+        "type": "string"
+      }
+    },
+    "schedule_e_indicators": {
+      "type": "array",
+      "description": "Rental / partnership indicators",
+      "items": {
+        "type": "string"
+      }
+    },
+    "schedule_f_indicators": {
+      "type": "array",
+      "description": "Farm income indicators",
+      "items": {
+        "type": "string"
+      }
+    },
+    "k1_indicators": {
+      "type": "array",
+      "description": "K-1 indicators",
+      "items": {
+        "type": "string"
+      }
+    },
+    "business_ownership_indicators": {
+      "type": "array",
+      "description": "Signs of business ownership",
+      "items": {
+        "type": "string"
+      }
+    },
+    "possible_recurring_income": {
+      "type": "array",
+      "description": "Income that may be recurring",
+      "items": {
+        "type": "string"
+      }
+    },
+    "possible_nonrecurring_income": {
+      "type": "array",
+      "description": "Income that may be one-time",
+      "items": {
+        "type": "string"
+      }
+    },
+    "possible_losses": {
+      "type": "array",
+      "description": "Losses that may reduce qualifying income",
+      "items": {
+        "type": "string"
+      }
+    },
+    "possible_addbacks_for_review": {
+      "type": "array",
+      "description": "Items an underwriter may add back (depreciation, etc.)",
+      "items": {
+        "type": "string"
+      }
+    },
+    "requires_underwriting_analysis": {
+      "type": "array",
+      "description": "Why this needs a human underwriter",
+      "items": {
+        "type": "string"
+      }
+    },
+    "potential_inconsistencies": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Observations that look inconsistent. NOT conclusions."
+    },
+    "missing_information": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Fields the document should contain but does not."
+    },
+    "human_verification_items": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Things a human must confirm against the source before relying on them."
+    },
+    "confidence": {
+      "type": "string",
+      "enum": [
+        "high",
+        "moderate",
+        "low",
+        "needs_human_verification"
+      ]
+    },
+    "source_references": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "field": {
+            "type": "string"
+          },
+          "page": {
+            "type": "integer"
+          },
+          "snippet": {
+            "type": "string",
+            "description": "Verbatim text the value came from"
+          },
+          "extraction_method": {
+            "type": "string",
+            "enum": [
+              "native",
+              "ocr",
+              "vision"
+            ]
+          }
+        }
+      },
+      "description": "Where each important value was found."
+    }
+  },
+  "required": [
+    "confidence",
+    "human_verification_items"
+  ]
+}

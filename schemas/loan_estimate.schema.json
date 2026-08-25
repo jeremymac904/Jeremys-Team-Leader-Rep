@@ -1,0 +1,189 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://loanfactory.local/schemas/loan_estimate.json",
+  "title": "Loan Estimate",
+  "description": "Fields extracted from a Loan Estimate.  EXTRACTION ONLY \u2014 this is not an underwriting decision.",
+  "type": "object",
+  "properties": {
+    "applicant_name": {
+      "type": "string",
+      "description": "Applicant"
+    },
+    "property_address": {
+      "type": "string",
+      "description": "Property"
+    },
+    "date_issued": {
+      "type": "string",
+      "description": "Date issued (as written, e.g. '07/20/2026')"
+    },
+    "loan_amount": {
+      "type": "string",
+      "description": "Loan amount (as written on the document, e.g. '3,109.28')"
+    },
+    "interest_rate": {
+      "type": "string",
+      "description": "Interest rate as shown"
+    },
+    "loan_term": {
+      "type": "string",
+      "description": "Loan term"
+    },
+    "loan_type": {
+      "type": "string",
+      "description": "Conventional | FHA | VA | USDA | Other"
+    },
+    "loan_purpose": {
+      "type": "string",
+      "description": "Purchase | Refinance | Other"
+    },
+    "rate_locked": {
+      "type": "string",
+      "description": "Yes | No | as stated"
+    },
+    "apr": {
+      "type": "string",
+      "description": "APR"
+    },
+    "monthly_principal_interest": {
+      "type": "string",
+      "description": "Monthly P&I (as written on the document, e.g. '3,109.28')"
+    },
+    "estimated_taxes": {
+      "type": "string",
+      "description": "Estimated property taxes (as written on the document, e.g. '3,109.28')"
+    },
+    "estimated_insurance": {
+      "type": "string",
+      "description": "Estimated homeowners insurance (as written on the document, e.g. '3,109.28')"
+    },
+    "estimated_hoa": {
+      "type": "string",
+      "description": "Estimated HOA dues (as written on the document, e.g. '3,109.28')"
+    },
+    "mortgage_insurance": {
+      "type": "string",
+      "description": "Monthly mortgage insurance (as written on the document, e.g. '3,109.28')"
+    },
+    "total_monthly_payment": {
+      "type": "string",
+      "description": "Estimated total monthly payment (as written on the document, e.g. '3,109.28')"
+    },
+    "points": {
+      "type": "string",
+      "description": "Points / discount charge (as written on the document, e.g. '3,109.28')"
+    },
+    "origination_charges": {
+      "type": "string",
+      "description": "Section A total (as written on the document, e.g. '3,109.28')"
+    },
+    "services_cannot_shop": {
+      "type": "string",
+      "description": "Section B total (as written on the document, e.g. '3,109.28')"
+    },
+    "services_can_shop": {
+      "type": "string",
+      "description": "Section C total (as written on the document, e.g. '3,109.28')"
+    },
+    "total_loan_costs": {
+      "type": "string",
+      "description": "Section D total (as written on the document, e.g. '3,109.28')"
+    },
+    "taxes_government_fees": {
+      "type": "string",
+      "description": "Section E total (as written on the document, e.g. '3,109.28')"
+    },
+    "prepaids": {
+      "type": "string",
+      "description": "Section F total (as written on the document, e.g. '3,109.28')"
+    },
+    "initial_escrow": {
+      "type": "string",
+      "description": "Section G total (as written on the document, e.g. '3,109.28')"
+    },
+    "other_costs": {
+      "type": "string",
+      "description": "Section H total (as written on the document, e.g. '3,109.28')"
+    },
+    "total_closing_costs": {
+      "type": "string",
+      "description": "Section J total (as written on the document, e.g. '3,109.28')"
+    },
+    "lender_credits": {
+      "type": "string",
+      "description": "Lender credits (as written on the document, e.g. '3,109.28')"
+    },
+    "cash_to_close": {
+      "type": "string",
+      "description": "Estimated cash to close (as written on the document, e.g. '3,109.28')"
+    },
+    "comparison_items": {
+      "type": "array",
+      "description": "Items worth comparing against another LE or the CD",
+      "items": {
+        "type": "string"
+      }
+    },
+    "potential_inconsistencies": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Observations that look inconsistent. NOT conclusions."
+    },
+    "missing_information": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Fields the document should contain but does not."
+    },
+    "human_verification_items": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Things a human must confirm against the source before relying on them."
+    },
+    "confidence": {
+      "type": "string",
+      "enum": [
+        "high",
+        "moderate",
+        "low",
+        "needs_human_verification"
+      ]
+    },
+    "source_references": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "field": {
+            "type": "string"
+          },
+          "page": {
+            "type": "integer"
+          },
+          "snippet": {
+            "type": "string",
+            "description": "Verbatim text the value came from"
+          },
+          "extraction_method": {
+            "type": "string",
+            "enum": [
+              "native",
+              "ocr",
+              "vision"
+            ]
+          }
+        }
+      },
+      "description": "Where each important value was found."
+    }
+  },
+  "required": [
+    "confidence",
+    "human_verification_items"
+  ]
+}

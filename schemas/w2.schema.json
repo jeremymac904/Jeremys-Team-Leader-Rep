@@ -1,0 +1,144 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://loanfactory.local/schemas/w2.json",
+  "title": "W-2",
+  "description": "Fields extracted from a W-2 wage and tax statement.  EXTRACTION ONLY \u2014 this is not an underwriting decision.",
+  "type": "object",
+  "properties": {
+    "employee_name": {
+      "type": "string",
+      "description": "Employee name"
+    },
+    "employer_name": {
+      "type": "string",
+      "description": "Employer name"
+    },
+    "employer_ein": {
+      "type": "string",
+      "description": "Employer EIN if shown"
+    },
+    "tax_year": {
+      "type": "string",
+      "description": "Tax year"
+    },
+    "box1_wages": {
+      "type": "string",
+      "description": "Box 1 wages, tips, other compensation (as written on the document, e.g. '3,109.28')"
+    },
+    "box2_federal_withholding": {
+      "type": "string",
+      "description": "Box 2 federal income tax withheld (as written on the document, e.g. '3,109.28')"
+    },
+    "box3_ss_wages": {
+      "type": "string",
+      "description": "Box 3 social security wages (as written on the document, e.g. '3,109.28')"
+    },
+    "box4_ss_withheld": {
+      "type": "string",
+      "description": "Box 4 social security tax withheld (as written on the document, e.g. '3,109.28')"
+    },
+    "box5_medicare_wages": {
+      "type": "string",
+      "description": "Box 5 medicare wages (as written on the document, e.g. '3,109.28')"
+    },
+    "box6_medicare_withheld": {
+      "type": "string",
+      "description": "Box 6 medicare tax withheld (as written on the document, e.g. '3,109.28')"
+    },
+    "box12_codes": {
+      "type": "array",
+      "description": "Box 12 code/amount pairs",
+      "items": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "amount": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "box13_retirement_plan": {
+      "type": "boolean",
+      "description": "Box 13 retirement plan checked"
+    },
+    "box16_state_wages": {
+      "type": "string",
+      "description": "Box 16 state wages (as written on the document, e.g. '3,109.28')"
+    },
+    "box17_state_tax": {
+      "type": "string",
+      "description": "Box 17 state income tax (as written on the document, e.g. '3,109.28')"
+    },
+    "comparison_notes": {
+      "type": "array",
+      "description": "Notes when compared with other documents",
+      "items": {
+        "type": "string"
+      }
+    },
+    "potential_inconsistencies": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Observations that look inconsistent. NOT conclusions."
+    },
+    "missing_information": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Fields the document should contain but does not."
+    },
+    "human_verification_items": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Things a human must confirm against the source before relying on them."
+    },
+    "confidence": {
+      "type": "string",
+      "enum": [
+        "high",
+        "moderate",
+        "low",
+        "needs_human_verification"
+      ]
+    },
+    "source_references": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "field": {
+            "type": "string"
+          },
+          "page": {
+            "type": "integer"
+          },
+          "snippet": {
+            "type": "string",
+            "description": "Verbatim text the value came from"
+          },
+          "extraction_method": {
+            "type": "string",
+            "enum": [
+              "native",
+              "ocr",
+              "vision"
+            ]
+          }
+        }
+      },
+      "description": "Where each important value was found."
+    }
+  },
+  "required": [
+    "confidence",
+    "human_verification_items"
+  ]
+}

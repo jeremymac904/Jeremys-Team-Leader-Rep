@@ -1,0 +1,68 @@
+# ---------------------------------------------------------------------------
+# CONNECTED SERVICES
+#
+# ⚠️  IMPORTANT AND HONEST: this repository does NOT ship working connectors to
+#     Gmail, Google Calendar, your CRM, or your LOS. Nothing here logs into
+#     anything. This file is the place where those connections get declared
+#     once you (or an AI coding assistant) actually build them.
+#
+#     Everything below is `enabled: false` on purpose. Read docs/integrations.md
+#     for exactly what works today versus what is a placeholder.
+# ---------------------------------------------------------------------------
+schema_version: 1
+kind: integrations-config
+
+integrations:
+  - id: local-files
+    name: "Local files in this repository and team-data/"
+    status: working            # working | placeholder
+    enabled: true
+    notes: "The agent reads your config, roster, and any notes you drop into team-data/. This is the only data source that works with zero setup."
+
+  - id: manual-paste
+    name: "Numbers and reports you paste into the conversation"
+    status: working
+    enabled: true
+    notes: "The most reliable integration there is. Export a pipeline report, paste it, ask for the review."
+
+  - id: gmail
+    name: "Gmail"
+    status: placeholder
+    enabled: false
+    notes: "Not implemented. Requires a Google OAuth app and an MCP server or Hermes toolset. See docs/integrations.md."
+
+  - id: google-calendar
+    name: "Google Calendar"
+    status: placeholder
+    enabled: false
+    notes: "Not implemented."
+
+  - id: google-drive
+    name: "Google Drive"
+    status: placeholder
+    enabled: false
+    notes: "Not implemented."
+
+  - id: github
+    name: "GitHub"
+    status: placeholder
+    enabled: false
+    notes: "Not implemented here. If you use the `gh` CLI you already have this outside the agent."
+
+  - id: crm
+    name: "Your CRM"
+    status: placeholder
+    enabled: false
+    notes: "Not implemented. Most CRMs need a vendor API key. Start with exported reports instead."
+
+  - id: los
+    name: "Your LOS"
+    status: placeholder
+    enabled: false
+    notes: "Not implemented. Treat LOS data as borrower data — read docs/privacy.md before connecting anything."
+
+  - id: slack
+    name: "Slack"
+    status: placeholder
+    enabled: false
+    notes: "Not implemented."

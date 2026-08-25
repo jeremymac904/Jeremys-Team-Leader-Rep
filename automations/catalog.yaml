@@ -1,0 +1,599 @@
+# ---------------------------------------------------------------------------
+# AUTOMATION LIBRARY
+#
+# Every automation here is INACTIVE. This is a catalog of things you could set
+# up, not a set of running jobs. Read automations/schema.md for the field
+# meanings, and docs/automation-safety.md before activating anything.
+#
+# To use one right now without any setup: copy its `prompt` into a conversation
+# with your agent. That is the whole "installation" for most of them.
+# ---------------------------------------------------------------------------
+schema_version: 1
+kind: automation-catalog
+
+defaults:
+  active: false
+  owner: "${TEAM_LEADER_NAME}"
+  timezone: "${TIMEZONE}"
+  failure_behavior: "Fail closed. Produce no output, write a local note, do not retry any external action."
+  stale_data_behavior: "Label the data as stale or missing and omit the conclusion. Never estimate a number you were not given."
+  stop_control: "Delete the scheduled job, or stop pasting the prompt. Nothing here runs on its own."
+  prohibited_actions:
+    - "Send email, SMS, or any message to any person"
+    - "Modify a CRM or LOS record"
+    - "Publish or post content"
+    - "Quote a rate, fee, or payment to a borrower"
+    - "Make a lending, credit, pricing, underwriting, or eligibility decision"
+    - "Write private team or borrower information into a tracked file"
+
+automations:
+
+  # ========================= DAILY LEADERSHIP ==============================
+  - id: daily-morning-brief
+    name: "Morning Team Leader brief"
+    category: daily-leadership
+    objective: "Start the day knowing the three things that need you, instead of discovering them at 4pm."
+    trigger: "0 7 * * 1-5"
+    cadence: "Every weekday morning, before the day gets reactive"
+    data_needed: ["config/team-leader.yaml", "team-data/team.yaml", "yesterday's activity or scorecards if available", "today's calendar"]
+    skill: tl-morning-brief
+    prompt: "Give me my Team Leader morning brief. Here is what I have: [paste pipeline export / scorecards / calendar, or say what is missing]. Rank ruthlessly, max 3 things for today."
+    output: "Ranked brief: Do today (max 3), This week (max 5), Watching, Calendar prep, Checked-nothing-needed."
+    approval_required: false
+    privacy: "Reads your roster and any pipeline data you paste. Output may name team members, so it stays in team-data/ and is never committed."
+    setup: "Run scripts/setup.py so config/team-leader.yaml exists. Nothing else."
+    customization: "Change the max item counts and the escalation triggers in config/team-leader.yaml."
+    time_saved_per_month: "20 min/day x 22 days = ~7 hrs"
+
+  - id: daily-urgent-email-triage
+    name: "Urgent email triage"
+    category: daily-leadership
+    objective: "Separate the three emails that need you from the sixty that do not."
+    trigger: "manual, each morning"
+    cadence: "Daily, or whenever the inbox has gotten away from you"
+    data_needed: ["pasted subject lines and senders, or forwarded threads"]
+    skill: tl-morning-brief
+    prompt: "Triage these emails for me as a Team Leader. Sort into: needs me today, delegate to [names], reply later, ignore. Say who to delegate each one to and why. [paste]"
+    output: "Four buckets with a named owner for anything delegable."
+    approval_required: true
+    privacy: "Email content is private and may contain borrower information. Paste only what you need triaged. Never paste an email containing SSNs, account numbers, or credit data."
+    setup: "None. There is no Gmail connector in this repository — you paste."
+    customization: "Add your own 'always escalate' rules to escalation_preferences in config/team-leader.yaml."
+    time_saved_per_month: "15 min/day x 22 = ~5.5 hrs"
+
+  - id: daily-quiet-team-check
+    name: "Who has gone quiet"
+    category: daily-leadership
+    objective: "Catch the team member who has stopped producing before it becomes a month."
+    trigger: "0 16 * * 5"
+    cadence: "Friday afternoon"
+    data_needed: ["activity or scorecard data for the last 2-3 weeks", "team-data/team.yaml"]
+    skill: tl-weekly-review
+    prompt: "Compare this week's activity to the last two weeks per person. Who dropped, who went silent, who is trending down? One line each. [paste]"
+    output: "Up / Down / Quiet list with the specific change."
+    approval_required: false
+    privacy: "Individual performance data. Output stays in team-data/."
+    setup: "You need at least three weeks of activity data to see a trend."
+    customization: "Adjust the lookback window and what counts as 'quiet'."
+    time_saved_per_month: "~2 hrs, and catches problems weeks earlier"
+
+  # ============================== PIPELINE =================================
+  - id: pipeline-weekly-review
+    name: "Weekly pipeline review"
+    category: pipeline
+    objective: "Find every file that is quietly going wrong before the closing date does it for you."
+    trigger: "0 8 * * 2"
+    cadence: "Weekly, before your pipeline meeting"
+    data_needed: ["pipeline export with: file id, LO, stage, days in stage, contract closing date, last borrower contact, conditions outstanding"]
+    skill: tl-pipeline-review
+    prompt: "Run a pipeline review on this export. Flag: closings within 10 days with conditions outstanding, files past our 3-day borrower contact SLA, stages running long vs our median, aging preapprovals. Group by LO. [paste export]"
+    output: "At-risk list, per-LO grouping, and process patterns separated from people problems."
+    approval_required: false
+    privacy: "Pipeline exports contain borrower names and loan detail. This is the single most sensitive input in the system. Save the export to team-data/ only, never to a tracked folder, and refer to files by ID in any output you share."
+    setup: "Build a saved export in your LOS or CRM with the columns above. One-time, ~15 minutes."
+    customization: "Change the SLA days and the closing-window threshold in team-data/team.yaml standards."
+    time_saved_per_month: "45 min/week x 4 = ~3 hrs, plus the deals it saves"
+
+  - id: pipeline-closing-deadline-watch
+    name: "Closing deadline watch"
+    category: pipeline
+    objective: "Never be surprised by a contract closing date."
+    trigger: "0 8 * * 1-5"
+    cadence: "Daily"
+    data_needed: ["pipeline export with contract closing dates and conditions status"]
+    skill: tl-pipeline-review
+    prompt: "From this export, list every file with a contract closing date in the next 14 days. For each: days remaining, conditions outstanding, days since last borrower contact. Sort by risk. [paste]"
+    output: "Countdown list sorted by risk."
+    approval_required: false
+    privacy: "Borrower data. team-data/ only."
+    setup: "Same export as pipeline-weekly-review."
+    customization: "Change the 14-day window."
+    time_saved_per_month: "~2 hrs"
+
+  - id: pipeline-preapproval-followup
+    name: "Aging preapproval follow-up"
+    category: pipeline
+    objective: "Recover preapproved buyers who went quiet instead of letting them expire."
+    trigger: "0 9 * * 1"
+    cadence: "Weekly"
+    data_needed: ["preapproval list with issue date, expiration date, last contact, assigned LO"]
+    skill: tl-pipeline-review
+    prompt: "List preapprovals aging past 30 days with no contact in 14 days. Group by LO. For each, suggest the specific re-engagement angle. Do not draft borrower messages. [paste]"
+    output: "Per-LO aging list with a suggested angle each."
+    approval_required: true
+    privacy: "Borrower data. Any actual outreach is written and sent by the LO, not the agent."
+    setup: "Preapproval report from your LOS."
+    customization: "Adjust the aging and silence thresholds."
+    time_saved_per_month: "~2 hrs"
+
+  - id: pipeline-deal-rescue
+    name: "Deal rescue scan"
+    category: pipeline
+    objective: "Find files that are one specific action away from moving again."
+    trigger: "manual, weekly"
+    cadence: "Weekly, or when the month looks short"
+    data_needed: ["stalled file list with stage, days stalled, and the stated blocker"]
+    skill: tl-pipeline-review
+    prompt: "These files are stalled. For each, tell me the single most likely unlock and who should do it — me, the LO, the processor, or the agent. Operational only, no eligibility opinions. [paste]"
+    output: "One unlock action per file, with an owner."
+    approval_required: false
+    privacy: "Borrower data. team-data/ only."
+    setup: "None beyond the export."
+    customization: "None needed."
+    time_saved_per_month: "~1.5 hrs"
+
+  # ============================== COACHING =================================
+  - id: coaching-weekly-prep
+    name: "Weekly one-on-one prep"
+    category: coaching
+    objective: "Walk into every one-on-one already knowing the number, the diagnosis, and the drill."
+    trigger: "0 7 * * 3"
+    cadence: "The morning of your coaching day"
+    data_needed: ["the LO's scorecard", "their roster entry", "last session's commitments"]
+    skill: tl-lo-coaching-prep
+    prompt: "Prep my one-on-one with [name]. Here is their scorecard: [paste]. Diagnose which funnel stage is actually broken, pick one skill to drill, and give me the questions to ask."
+    output: "Prep sheet: the number, the diagnosis, trigger check, questions, the drill, and the closing commitment."
+    approval_required: false
+    privacy: "Individual performance data. team-data/ only. Never commit coaching notes."
+    setup: "Fill in experience_level and development_areas for each LO in team-data/team.yaml."
+    customization: "Session structure and per-level emphasis in config/coaching.yaml."
+    time_saved_per_month: "25 min per LO per week. With 4 LOs: ~7 hrs"
+
+  - id: coaching-session-recap
+    name: "Coaching session recap"
+    category: coaching
+    objective: "Document the same day, so next week's session starts from a real record instead of memory."
+    trigger: "after each session"
+    cadence: "Immediately after every one-on-one"
+    data_needed: ["your rough notes from the session"]
+    skill: tl-lo-coaching-prep
+    prompt: "Turn these session notes into a recap: what we covered, what they committed to (one number, one focus, one next step), what I need to follow up on, and what to check first next week. [paste notes]"
+    output: "Structured recap ready to save to team-data/coaching/."
+    approval_required: false
+    privacy: "Employee performance record. team-data/ only. If the content becomes disciplinary, it is an HR document — stop and involve a human."
+    setup: "Create team-data/coaching/ to keep them in one place."
+    customization: "None needed."
+    time_saved_per_month: "10 min per session"
+
+  - id: coaching-development-plan
+    name: "30/60/90 development plan"
+    category: coaching
+    objective: "Give a new hire a real ramp, or a stalling LO a real path, instead of a vague conversation."
+    trigger: "on hire, or when an intervention trigger fires"
+    cadence: "As needed"
+    data_needed: ["the LO's roster entry", "current production and activity numbers", "config/coaching.yaml"]
+    skill: tl-development-plan
+    prompt: "Build a 30/60/90 development plan for [name]. Type: [ramp / recovery / growth]. Their numbers: [paste]. Include what I owe them, not just what they owe me."
+    output: "Three-phase plan with activity targets early, outcome targets later, leader commitments, and a concrete definition of on-track."
+    approval_required: false
+    privacy: "Employee record. team-data/ only. If it is being used to document toward termination, stop — that is an HR and possibly legal document."
+    setup: "None."
+    customization: "Track emphasis and intervention triggers in config/coaching.yaml."
+    time_saved_per_month: "~1 hr per plan, and the plans are better"
+
+  - id: coaching-role-play
+    name: "Sales role-play rep"
+    category: coaching
+    objective: "Build the skill by saying it out loud, not by discussing it."
+    trigger: "manual"
+    cadence: "Weekly, in the one-on-one or the team meeting"
+    data_needed: ["the scenario and the difficulty level"]
+    skill: tl-role-play
+    prompt: "Role-play with me. You are a [buyer / Realtor / candidate], difficulty [warm / neutral / difficult]. Scenario: [describe]. Stay in character until I call time, then score me and rewrite my weakest line."
+    output: "In-character scene, then a 5-point score and an exact rewrite."
+    approval_required: false
+    privacy: "Fully simulated. No real people, no real files."
+    setup: "None."
+    customization: "Add your own scenarios to coaching/frameworks/scripts.md."
+    time_saved_per_month: "Replaces prep time for skill sessions: ~2 hrs"
+
+  - id: coaching-accountability-check
+    name: "Weekly accountability check"
+    category: coaching
+    objective: "Hold the standard consistently instead of only when you happen to notice."
+    trigger: "0 16 * * 5"
+    cadence: "Friday, after scorecards are due"
+    data_needed: ["this week's scorecards", "team-data/team.yaml standards", "config/coaching.yaml intervention triggers"]
+    skill: tl-weekly-review
+    prompt: "Check each person against our standards and tell me which intervention triggers have fired. Coach the activity, not the person. [paste scorecards]"
+    output: "Per-person standard check and a list of fired triggers."
+    approval_required: false
+    privacy: "Employee performance data. team-data/ only. Never produce a ranked leaderboard that shames people."
+    setup: "Define standards in team-data/team.yaml."
+    customization: "Triggers in config/coaching.yaml."
+    time_saved_per_month: "~2 hrs"
+
+  # ============================== MEETINGS =================================
+  - id: meeting-weekly-agenda
+    name: "Weekly team meeting agenda"
+    category: meetings
+    objective: "Run a meeting that teaches something, instead of a status round-robin."
+    trigger: "0 16 * * 5"
+    cadence: "Friday, for Monday's meeting"
+    data_needed: ["this week's pipeline review or scorecards", "last meeting's action items"]
+    skill: tl-team-meeting-prep
+    prompt: "Build Monday's team meeting agenda. Pick the training topic from this week's actual pattern, not a rotation. Time-box every block to [N] minutes total. Here is the data: [paste]"
+    output: "Timed agenda with wins, prior action items, a training block with a live drill, the pipeline theme, and new action items with owners."
+    approval_required: false
+    privacy: "Individual shortfalls never go on a group agenda. Patterns only."
+    setup: "Set your meeting duration in config/team-leader.yaml."
+    customization: "Change the block structure and durations."
+    time_saved_per_month: "45 min/week = ~3 hrs"
+
+  - id: meeting-recap
+    name: "Meeting recap and action tracking"
+    category: meetings
+    objective: "Make action items survive the meeting."
+    trigger: "after each meeting"
+    cadence: "Immediately after"
+    data_needed: ["your notes from the meeting"]
+    skill: tl-team-meeting-prep
+    prompt: "Turn these meeting notes into a recap: decided, assigned (with owner and due date), carried over, and next week's topic. Then draft the version I can send the team. [paste]"
+    output: "Recap plus a sendable draft."
+    approval_required: true
+    privacy: "Internal team communication. You send it, not the agent."
+    setup: "None."
+    customization: "None needed."
+    time_saved_per_month: "20 min/week = ~1.5 hrs"
+
+  - id: meeting-oneonone-schedule
+    name: "One-on-one prep batch"
+    category: meetings
+    objective: "Prepare every one-on-one for the week in a single sitting."
+    trigger: "0 7 * * 3"
+    cadence: "Weekly, the morning of your coaching block"
+    data_needed: ["all scorecards for the week", "team-data/team.yaml"]
+    skill: tl-lo-coaching-prep
+    prompt: "Prep all of this week's one-on-ones. One prep sheet per person, each adapted to their experience level. Here are the scorecards: [paste all]"
+    output: "One prep sheet per team member."
+    approval_required: false
+    privacy: "Employee data. team-data/ only."
+    setup: "None."
+    customization: "None needed."
+    time_saved_per_month: "~4 hrs"
+
+  # ============================= RECRUITING ================================
+  - id: recruiting-pipeline-review
+    name: "Recruiting pipeline review"
+    category: recruiting
+    objective: "Keep recruiting from only happening after someone quits."
+    trigger: "0 9 * * 1"
+    cadence: "Weekly"
+    data_needed: ["recruiting_pipeline in team-data/team.yaml", "recruiting_goals in config/team-leader.yaml"]
+    skill: tl-recruiting-review
+    prompt: "Review my recruiting pipeline. Who is stalled, is my funnel wide enough for [N] hires per quarter, and what is the specific next move for each candidate? Do not contact anyone."
+    output: "Needs attention, stalled, funnel adequacy, next moves."
+    approval_required: false
+    privacy: "Candidate information is highly sensitive — these are people considering leaving a job. team-data/ only. Never commit it, never put a real candidate in an example."
+    setup: "Add candidates to the recruiting_pipeline section of team-data/team.yaml."
+    customization: "Set hires_per_quarter and target_profile."
+    time_saved_per_month: "~2 hrs"
+
+  - id: recruiting-interview-prep
+    name: "Interview preparation"
+    category: recruiting
+    objective: "Interview against your stated profile instead of against your mood that day."
+    trigger: "before each interview"
+    cadence: "As needed"
+    data_needed: ["the candidate's stated background and numbers", "your target_profile"]
+    skill: tl-recruiting-review
+    prompt: "Prep me for an interview with [candidate]. Their background: [paste]. Build questions against my target profile, tell me what to listen for, and flag what they claimed that I should verify."
+    output: "Questions, listen-fors, and a verification list."
+    approval_required: false
+    privacy: "Candidate data. Public professional information only — never research a candidate's private life. Never evaluate on any protected characteristic."
+    setup: "Set target_profile in config/team-leader.yaml."
+    customization: "Add your own must-ask questions."
+    time_saved_per_month: "~30 min per interview"
+
+  - id: recruiting-onboarding-plan
+    name: "New hire onboarding plan"
+    category: recruiting
+    objective: "Make the first 30 days deliberate so a new hire ramps instead of drifting."
+    trigger: "on offer acceptance"
+    cadence: "Per hire"
+    data_needed: ["the new hire's experience level", "config/coaching.yaml ramp track"]
+    skill: tl-development-plan
+    prompt: "Build a first-30-days onboarding plan for a new LO at the [new / developing / established] level. Week by week: setup, training, activity targets, and their first checkpoint with me."
+    output: "Week-by-week 30-day ramp."
+    approval_required: false
+    privacy: "Employee record. team-data/."
+    setup: "None."
+    customization: "Ramp emphasis in config/coaching.yaml."
+    time_saved_per_month: "~2 hrs per hire"
+
+  # ============================== PARTNERS =================================
+  - id: partners-weekly-review
+    name: "Referral partner review"
+    category: partners
+    objective: "Notice the agent who stopped referring, in the month it happens rather than the quarter."
+    trigger: "0 9 * * 1"
+    cadence: "Weekly"
+    data_needed: ["partner list with last contact date, referral counts, and owning LO"]
+    skill: tl-partner-review
+    prompt: "Review our partner relationships. Segment into producing, warm, cold 60+ days, and new. Highlight anyone who used to refer and stopped — that is the priority. Give me one specific value item for each flagged partner. Do not contact anyone. [paste]"
+    output: "Segmented review with a specific value item per flagged partner."
+    approval_required: true
+    privacy: "Partner lists are business-confidential. team-data/ only. Any outreach is drafted for review and sent by a human."
+    setup: "Maintain a partner list with last-contact dates. Without that column, decay cannot be detected."
+    customization: "Adjust the cold threshold."
+    time_saved_per_month: "~3 hrs, and it protects referral revenue"
+
+  - id: partners-meeting-prep
+    name: "Partner meeting prep"
+    category: partners
+    objective: "Walk into an agent meeting with something useful instead of a business card."
+    trigger: "before each partner meeting"
+    cadence: "As needed"
+    data_needed: ["the partner's history with your team", "their public market activity"]
+    skill: tl-partner-review
+    prompt: "Prep me for a meeting with [agent]. History with us: [paste]. What should I bring them, what should I ask, and what is the low-risk next step to propose?"
+    output: "Value item, questions, and a proposed next step."
+    approval_required: false
+    privacy: "Public professional information only. Never anything about their private life."
+    setup: "None."
+    customization: "None needed."
+    time_saved_per_month: "~15 min per meeting"
+
+  - id: partners-value-item-plan
+    name: "Quarterly partner value plan"
+    category: partners
+    objective: "Give every A-tier partner a reason to keep working with you that is not price."
+    trigger: "0 9 1 */3 *"
+    cadence: "Quarterly"
+    data_needed: ["your top partners", "marketing_goals", "mortgage_specialties"]
+    skill: tl-partner-review
+    prompt: "For my top [N] partners, plan one useful thing per month next quarter — market updates, buyer education, co-branded content, a fast-turn commitment. Flag anything that could raise a RESPA question."
+    output: "Quarterly value calendar with RESPA flags."
+    approval_required: true
+    privacy: "Anything of value given to a referral source has RESPA implications. The agent flags; a human and compliance decide."
+    setup: "None."
+    customization: "Number of partners and cadence."
+    time_saved_per_month: "~2 hrs"
+
+  # ============================== TRAINING =================================
+  - id: training-topic-selection
+    name: "Next training topic"
+    category: training
+    objective: "Train on the gap that is costing production, not on whatever came up."
+    trigger: "0 15 * * 4"
+    cadence: "Weekly, before you plan the next session"
+    data_needed: ["team development areas", "recent scorecards or pipeline patterns"]
+    skill: tl-training-plan
+    prompt: "Pick our next training topic from evidence. Count how many people share each gap and tell me what it is costing. Show me what you rejected and why. [paste data]"
+    output: "Selected topic with counted evidence, plus rejected alternatives."
+    approval_required: false
+    privacy: "Team-level patterns only. Never build a session obviously aimed at one person."
+    setup: "Keep development_areas current in team-data/team.yaml."
+    customization: "None needed."
+    time_saved_per_month: "~1.5 hrs"
+
+  - id: training-session-build
+    name: "Build the training session"
+    category: training
+    objective: "Turn a topic into a 25-minute session with a live drill and a takeaway."
+    trigger: "manual"
+    cadence: "Weekly or monthly, matching your training_schedule"
+    data_needed: ["the chosen topic", "session length"]
+    skill: tl-training-plan
+    prompt: "Build a [N]-minute session on [topic]. At least as much drilling as teaching. Include the exact role-play scenario and a one-page takeaway card."
+    output: "Timed session plan plus the takeaway artifact."
+    approval_required: false
+    privacy: "None, unless guideline content is included — then sources and dates are required."
+    setup: "None."
+    customization: "Change the teach/drill ratio."
+    time_saved_per_month: "~2 hrs per session"
+
+  - id: training-guideline-refresh
+    name: "Program and guideline refresh"
+    category: training
+    objective: "Teach current guidelines instead of remembered ones."
+    trigger: "0 9 1 * *"
+    cadence: "Monthly"
+    data_needed: ["the programs your team actually sells (mortgage_specialties)"]
+    skill: tl-guideline-research
+    prompt: "For [program], summarize the general rule, common exceptions, and what is fact-specific. Separate agency guideline from investor overlay from lender-specific. Cite every source with its date. Education only."
+    output: "Sourced summary with layer separation and a verification warning."
+    approval_required: false
+    privacy: "Public and approved internal sources only. No borrower specifics — a borrower-specific question goes to underwriting, not to the agent."
+    setup: "None."
+    customization: "Set mortgage_specialties so the refresh covers what you actually sell."
+    time_saved_per_month: "~2 hrs"
+
+  # ============================== MARKETING ================================
+  - id: marketing-content-plan
+    name: "Monthly content plan"
+    category: marketing
+    objective: "Keep the team visible without inventing content every week."
+    trigger: "0 9 1 * *"
+    cadence: "Monthly"
+    data_needed: ["marketing_goals", "questions the team is actually being asked", "who will distribute each piece"]
+    skill: tl-content-plan
+    prompt: "Build next month's content plan at my stated cadence. Source topics from these real questions we are getting: [paste]. Separate Realtor education from consumer education. Flag anything needing compliance review."
+    output: "Content calendar by audience, with hooks, points, examples, CTAs, owners, and compliance flags."
+    approval_required: true
+    privacy: "Outward-facing. Nothing publishes without your approval and, usually, company compliance review."
+    setup: "Set marketing_goals in config/team-leader.yaml."
+    customization: "Cadence and audience mix."
+    time_saved_per_month: "~4 hrs"
+
+  - id: marketing-video-script
+    name: "Video script draft"
+    category: marketing
+    objective: "Remove the blank-page problem from weekly video."
+    trigger: "manual"
+    cadence: "Weekly"
+    data_needed: ["the topic", "the audience", "the length"]
+    skill: tl-content-plan
+    prompt: "Write a [N]-second video script on [topic] for [Realtors / consumers]. Hook, one point, concrete example, CTA. No rates, no guarantees, no superlatives. Flag anything needing compliance review."
+    output: "Script draft with compliance flags."
+    approval_required: true
+    privacy: "Advertising rules apply. Human review before anything is published."
+    setup: "None."
+    customization: "Length, tone, and CTA."
+    time_saved_per_month: "30 min/week = ~2 hrs"
+
+  - id: marketing-realtor-education
+    name: "Realtor education session"
+    category: marketing
+    objective: "Be the lender agents learn from, which is a durable advantage over being the cheapest."
+    trigger: "0 9 1 * *"
+    cadence: "Monthly"
+    data_needed: ["what agents in your market are struggling with", "mortgage_specialties"]
+    skill: tl-content-plan
+    prompt: "Design a 30-minute Realtor education session on [topic]. What they learn, what they can use tomorrow, and the handout. Nothing that could read as a rate quote or an inducement."
+    output: "Session outline plus an agent-facing handout."
+    approval_required: true
+    privacy: "Anything of value provided to referral sources has RESPA implications. Flag for compliance."
+    setup: "None."
+    customization: "Length and format."
+    time_saved_per_month: "~3 hrs"
+
+  # ============================== EXECUTIVE ================================
+  - id: exec-weekly-review
+    name: "Your own weekly review"
+    category: executive
+    objective: "Review yourself, not only everyone else — including your own production."
+    trigger: "0 15 * * 5"
+    cadence: "Friday afternoon"
+    data_needed: ["team scorecards", "your own production numbers", "how the week actually went"]
+    skill: tl-weekly-review
+    prompt: "Run my weekly Team Leader review. Team trend vs the last two weeks, who moved, my own production against my personal goal, where my time went, what to hand off, and three priorities for next week. [paste]"
+    output: "Team trend, movement, your production, time audit, delegation list, automation candidates, three priorities."
+    approval_required: false
+    privacy: "Team and personal performance. team-data/ only."
+    setup: "Set personal_units_per_month in production_goals."
+    customization: "Lookback window."
+    time_saved_per_month: "~2 hrs, and it keeps your own production from disappearing"
+
+  - id: exec-monthly-production-review
+    name: "Monthly production review"
+    category: executive
+    objective: "See structure instead of noise: real trajectories, concentration risk, capacity."
+    trigger: "0 9 1 * *"
+    cadence: "Monthly"
+    data_needed: ["monthly production by LO for at least 3 months", "production_goals", "tenure per person"]
+    skill: tl-monthly-review
+    prompt: "Run my monthly production review. Per-LO trajectory judged against tenure, concentration risk as a percentage, who is at capacity, and three objectives for next quarter. [paste 3+ months]"
+    output: "Team totals, per-LO trajectory, concentration risk, capacity, quarter objectives, and decisions for you."
+    approval_required: false
+    privacy: "Individual production is confidential. team-data/ only."
+    setup: "Keep 3+ months of production history somewhere you can export."
+    customization: "None needed."
+    time_saved_per_month: "~3 hrs"
+
+  - id: exec-quarterly-planning
+    name: "Quarterly planning session"
+    category: executive
+    objective: "Set three objectives for the quarter that are measurable, instead of a wish list."
+    trigger: "0 9 1 */3 *"
+    cadence: "Quarterly"
+    data_needed: ["last quarter's results", "production_goals", "recruiting_goals", "capacity picture"]
+    skill: tl-monthly-review
+    prompt: "Plan next quarter. Three objectives, each with the number that proves it. Tell me what I have to stop doing to make room. [paste last quarter]"
+    output: "Three objectives with measures, plus an explicit stop-doing list."
+    approval_required: false
+    privacy: "team-data/ only."
+    setup: "None."
+    customization: "Number of objectives — but three is the point."
+    time_saved_per_month: "~2 hrs per quarter"
+
+  - id: exec-time-and-delegation-audit
+    name: "Time and delegation audit"
+    category: executive
+    objective: "Find the work you are doing that someone else should own."
+    trigger: "0 9 1 * *"
+    cadence: "Monthly"
+    data_needed: ["a rough log of how your week went", "the roster and who has capacity"]
+    skill: tl-weekly-review
+    prompt: "Here is how my week actually went: [describe]. What should I delegate and to whom, what should be automated, and what genuinely requires me? Be specific about people."
+    output: "Delegate / automate / keep, with named owners."
+    approval_required: false
+    privacy: "team-data/ only."
+    setup: "None."
+    customization: "None needed."
+    time_saved_per_month: "Compounds — typically the highest-leverage item in the catalog"
+
+  # ============================ AI WORKFLOWS ===============================
+  - id: ai-automation-assessment
+    name: "Should I automate this?"
+    category: ai-workflows
+    objective: "Get an honest answer, including 'keep it manual' when that is correct."
+    trigger: "manual"
+    cadence: "Whenever you notice yourself repeating something"
+    data_needed: ["what the task is, how often, how long, and whether it ends in a human decision"]
+    skill: tl-automation-advisor
+    prompt: "I do [task] about [N] times a week, and it takes [N] minutes. Should I automate it, assist it, or keep it manual? If it is worth automating, write the automation card."
+    output: "Qualification, verdict, blockers, time-saved arithmetic, and a card if warranted."
+    approval_required: false
+    privacy: "None."
+    setup: "None."
+    customization: "None needed."
+    time_saved_per_month: "Varies — its job is to find the hours"
+
+  - id: ai-prompt-builder
+    name: "Build a reusable prompt"
+    category: ai-workflows
+    objective: "Turn a prompt that worked once into one that works every time."
+    trigger: "manual"
+    cadence: "As needed"
+    data_needed: ["what you asked, what you got, what you actually wanted"]
+    skill: tl-automation-advisor
+    prompt: "I asked: [paste]. I got: [describe]. I wanted: [describe]. Rewrite this as a reusable prompt with clear inputs, and tell me where to save it in prompts/."
+    output: "A reusable prompt with declared inputs, plus where it belongs."
+    approval_required: false
+    privacy: "Strip any borrower or team names before pasting an example."
+    setup: "None."
+    customization: "None needed."
+    time_saved_per_month: "Compounds"
+
+  - id: ai-team-training
+    name: "Team AI training session"
+    category: ai-workflows
+    objective: "Teach the team to use AI on their own work, so leverage is not bottlenecked on you."
+    trigger: "0 9 1 * *"
+    cadence: "Monthly"
+    data_needed: ["where the team is losing time", "which AI tools they actually have"]
+    skill: tl-training-plan
+    prompt: "Build a 30-minute session teaching my team to use AI for [specific LO task]. Hands-on, with the exact prompts they will use. Include what they must never put into an AI tool."
+    output: "Session plan with copy-paste prompts and a data-safety segment."
+    approval_required: false
+    privacy: "The session must explicitly cover never pasting borrower PII, SSNs, credit reports, or income documents into an AI tool. Do not omit that segment."
+    setup: "Know which tools the team has access to."
+    customization: "Task focus and tool set."
+    time_saved_per_month: "Compounds across the whole team"
+
+  - id: ai-workflow-audit
+    name: "Workflow audit"
+    category: ai-workflows
+    objective: "Find where the team's process wastes time or drops files."
+    trigger: "0 9 1 */3 *"
+    cadence: "Quarterly"
+    data_needed: ["a description of the current process, step by step"]
+    skill: tl-automation-advisor
+    prompt: "Here is our current [lead-to-close / follow-up / onboarding] process: [describe each step]. Where does it break, where is it duplicated, and what are the three highest-leverage fixes?"
+    output: "Break points, duplication, and three ranked fixes."
+    approval_required: false
+    privacy: "Describe the process, not the borrowers in it."
+    setup: "None."
+    customization: "None needed."
+    time_saved_per_month: "~3 hrs per audit, more from the fixes"

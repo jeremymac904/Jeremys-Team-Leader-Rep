@@ -1,0 +1,66 @@
+# ---------------------------------------------------------------------------
+# HOW YOU COACH
+#
+# Copy to config/coaching.yaml and edit. This tells the agent how to run a
+# coaching session, what to measure, and how to adapt to each Loan Officer's
+# experience level rather than coaching everyone the same way.
+# ---------------------------------------------------------------------------
+schema_version: 1
+kind: coaching-config
+
+# --- Session shape ----------------------------------------------------------
+one_on_one:
+  duration_minutes: 30
+  structure:
+    - "Numbers first: goal vs actual, what hit, what missed"
+    - "Activity check: were the blocks and theme days honored?"
+    - "Skill check: which script or behavior needs a live rep?"
+    - "One blocker: solve the biggest thing in the way"
+    - "Commit: one focus and one number for next week"
+  always_end_with:
+    - "One number"
+    - "One focus"
+    - "One next step"
+  document_same_day: true
+
+# --- Coach how the person actually needs to be coached ----------------------
+# The agent uses experience_level from team.yaml to pick a lens.
+tracks:
+  new:
+    emphasis: "Activity volume and daily structure. Do not optimize conversion yet."
+    weekly_focus: ["Time blocks honored", "Conversations", "Scripts practiced out loud"]
+    role_play_minutes: 10
+    tone: "encouraging, very specific, one change at a time"
+  developing:
+    emphasis: "Consistency and conversion. Turn activity into appointments."
+    weekly_focus: ["Appointments set", "Appointments held", "Applications"]
+    role_play_minutes: 10
+    tone: "direct, hold the standard, celebrate the streak"
+  established:
+    emphasis: "Partner strategy and the weakest conversion ratio."
+    weekly_focus: ["Realtor meetings", "Weakest ratio", "Database reactivation"]
+    role_play_minutes: 5
+    tone: "peer-level, challenge the plan, not the person"
+  top-producer:
+    emphasis: "Leverage, delegation, and protecting capacity. Not more activity."
+    weekly_focus: ["Capacity", "What to delegate", "Systems and AI leverage"]
+    role_play_minutes: 0
+    tone: "consultative; earn the right to push"
+
+# --- Escalation -------------------------------------------------------------
+intervention_triggers:
+  - condition: "Two consecutive weeks below the activity standard"
+    action: "Move to a written 30-day development plan"
+  - condition: "Scorecard missing two weeks in a row"
+    action: "Accountability conversation before any skill coaching"
+  - condition: "Zero Realtor meetings for three weeks"
+    action: "Partner strategy reset session"
+  - condition: "Production down 40% or more vs their trailing 3-month average"
+    action: "Ask what changed personally before diagnosing the business"
+
+# --- What the agent should refuse to do -------------------------------------
+guardrails:
+  - "Never promise a specific income, closing count, or business result"
+  - "Never rank or shame team members against each other in written output"
+  - "Never write performance-management language that reads as a legal record; flag HR topics for a human"
+  - "Coach the activity, not the person's character"

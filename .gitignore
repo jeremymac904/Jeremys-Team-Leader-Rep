@@ -1,0 +1,123 @@
+# ---------------------------------------------------------------------------
+# Loan Factory Team Leader OS — ignore rules
+#
+# This repository is PUBLIC. Everything below is either a secret, private team
+# information, or local machine noise. If you are unsure whether a file belongs
+# in the repository, assume it does NOT and keep it in team-data/.
+# ---------------------------------------------------------------------------
+
+# --- Secrets and credentials -----------------------------------------------
+.env
+.env.*
+!.env.example
+*.env
+!*.example.env
+secrets/
+*secret*
+*credential*
+*.pem
+*.key
+*.p12
+*.pfx
+*.keystore
+id_rsa*
+id_ed25519*
+auth.json
+auth.lock
+token.json
+tokens.json
+credentials.json
+client_secret*.json
+service-account*.json
+.netrc
+.npmrc
+cookies.txt
+*.cookies
+
+# --- Your private team information ------------------------------------------
+# Everything you fill in about your real team lives here and is never committed.
+team-data/**
+!team-data/.gitkeep
+!team-data/README.md
+
+# Your filled-in configuration (the .example.yaml templates ARE committed)
+config/*.yaml
+!config/*.example.yaml
+
+# The Hermes profile you actually run
+agent/team-leader/config.yaml
+
+# --- Data exports that commonly contain borrower or employee information ----
+*.csv
+!examples/**/*.csv
+!tests/**/*.csv
+*.xlsx
+*.xls
+*.sqlite
+*.sqlite3
+*.db
+*.mbox
+*.eml
+*.vcf
+*.ics
+
+# --- Local AI: model weights and borrower documents -------------------------
+# NOTHING in local_data/ is ever committed. It holds multi-gigabyte model
+# weights and, more importantly, real borrower documents.
+local_data/**
+!local_data/README.md
+!local_data/.gitkeep
+
+# Model weights, belt and braces. Even if someone puts a model somewhere else,
+# these extensions never get tracked.
+*.gguf
+*.ggml
+*.safetensors
+*.bin
+*.pt
+*.pth
+*.onnx
+*.mlmodel
+*.mlpackage
+
+# Your filled-in local AI configuration
+config/local-ai.yaml
+
+# --- The Hermes runtime that lives inside this repo -------------------------
+# install_hermes.sh pulls a fresh Hermes clone into vendor/ and gives it a
+# private home in hermes-home/. Both are machine-local: they are yours, they
+# may contain your API keys and session history, and they never get committed.
+vendor/
+hermes-home/
+
+# --- Local runtime, logs, caches --------------------------------------------
+runtime/
+logs/
+*.log
+.cache/
+tmp/
+out/
+outputs/
+
+# --- Python ------------------------------------------------------------------
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+env/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+*.egg-info/
+
+# --- Node (only if you add integrations that need it) -----------------------
+node_modules/
+npm-debug.log*
+
+# --- Editors and OS ----------------------------------------------------------
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*~

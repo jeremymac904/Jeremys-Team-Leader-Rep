@@ -1,0 +1,113 @@
+# ---------------------------------------------------------------------------
+# LOCAL AI AND PRIVACY ROUTING
+#
+# Copy to config/local-ai.yaml (gitignored), or let setup create it:
+#     python3 scripts/local_ai/setup_local_ai.py
+#
+# This file decides two things:
+#   1. Which local models run, and how
+#   2. What is allowed to leave your computer, and what is not
+#
+# The defaults put every borrower document in LOCAL REQUIRED. That is the
+# point of the feature. Read docs/local-ai/privacy-mode.md before loosening it.
+# ---------------------------------------------------------------------------
+schema_version: 1
+kind: local-ai-config
+
+# --- LOCAL PRIVACY MODE ----------------------------------------------------
+# When enabled, anything classified LOCAL REQUIRED below must be processed
+# entirely on this machine. There is NO silent cloud fallback. If a step
+# cannot be done locally, the system stops and tells you what failed, and
+# nothing is sent anywhere without you explicitly saying so.
+privacy_mode:
+  enabled: true
+  # What to do when a local step fails on a LOCAL REQUIRED workflow.
+  #   stop_and_ask  — halt, explain, require explicit approval (default)
+  #   stop          — halt, never offer a cloud path at all
+  on_local_failure: stop_and_ask
+  # Write a local audit line for every document processed. Stays on your
+  # machine, in local_data/audit/. Never contains document content.
+  audit_log: true
+
+# --- Routing ---------------------------------------------------------------
+# Which workflows may use which kind of model.
+routing:
+  local_required:
+    description: "Never leaves this computer while privacy mode is on."
+    applies_to:
+      - borrower documents of every kind
+      - paystubs, W2s, tax returns, 1099s
+      - bank statements and asset documentation
+      - credit reports and credit-related documents
+      - purchase contracts
+      - loan estimates, closing disclosures, mortgage statements
+      - insurance and HOA documents
+      - letters of explanation
+      - mortgage applications and any 1003 data
+      - anything containing a borrower name, SSN, or account number
+
+  local_preferred:
+    description: "Use local when a local model is available; ask before cloud."
+    applies_to:
+      - internal team documents
+      - coaching notes and one-on-one records
+      - production and performance reviews
+      - recruiting candidate notes
+
+  cloud_acceptable:
+    description: "No borrower or employee data involved. Cloud is fine."
+    applies_to:
+      - public mortgage guideline research
+      - training and curriculum creation
+      - marketing and content work
+      - public market research
+      - general AI and automation questions
+
+  hybrid:
+    description: >-
+      Extract locally, redact locally, show you exactly what would leave the
+      machine, then send only the sanitized text to a stronger cloud model.
+    enabled: false          # off until you turn it on deliberately
+    require_approval: true  # cannot be disabled — see docs/local-ai/privacy-mode.md
+    show_diff_before_send: true
+
+# --- Local inference engine ------------------------------------------------
+engine:
+  name: llama.cpp
+  # Filled in by setup. The server exposes an OpenAI-compatible API that
+  # Hermes talks to as a "custom" provider.
+  host: "127.0.0.1"
+  reasoning_port: 8080
+  extraction_port: 8081
+  # Extra flags passed to llama-server. -ngl 99 offloads all layers to the GPU
+  # (Metal on Apple Silicon, CUDA on NVIDIA). Lower it if you run out of memory.
+  gpu_layers: 99
+  threads: 0        # 0 = let llama.cpp decide
+
+# --- Models ----------------------------------------------------------------
+# Leave tier as "auto" to let hardware detection choose. Override only if you
+# know your machine can handle more than the detector picked.
+models:
+  tier: auto
+  reasoning_model: auto
+  extraction_model: auto
+  # Where downloaded weights live. Gitignored, and .gitignore also blocks
+  # *.gguf everywhere as a second line of defence.
+  directory: "local_data/models"
+
+# --- Document pipeline -----------------------------------------------------
+documents:
+  # Where you put documents to be reviewed. Gitignored.
+  inbox: "local_data/borrower_documents"
+  # Native text extraction is tried first. OCR only runs when a page has no
+  # usable text layer, because OCR is slower and less accurate.
+  prefer_native_text: true
+  ocr:
+    enabled: true
+    engine: tesseract       # local only; never a cloud OCR service
+    # A page with fewer than this many extractable characters is treated as
+    # scanned and sent to OCR.
+    min_chars_for_native: 100
+  # Render at this DPI when a page must become an image for OCR or vision.
+  render_dpi: 200
+  max_pages_per_document: 50
