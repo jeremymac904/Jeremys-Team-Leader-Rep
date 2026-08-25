@@ -31,9 +31,22 @@ Then connect it to an AI model:
 hermes setup
 ```
 
-It will ask which AI provider you want to use and walk you through it. Pick
-whichever you already have an account with. If you have none, it will offer
-options — any of them work.
+It will ask which AI provider you want to use and walk you through it.
+
+**Choose a capable model.** This matters more than anything else in this guide.
+The Team Leader instructions are detailed, and the agent has 35 skills to choose
+between — a strong model uses them well, a small one gives generic answers.
+
+Good choices: **Claude (Anthropic)**, **GPT (OpenAI)**, or **Nous Portal**. Any
+current frontier model works.
+
+Two things to avoid on day one:
+
+- **Small local models.** A model running on your own laptop will be slow and
+  noticeably more generic here. (Hermes also requires at least a 64,000-token
+  context window, which most small local setups do not provide.) Local AI has a
+  place in this system — private document review — but not as your chat model.
+- **Picking whatever is cheapest.** The difference shows immediately.
 
 ---
 
@@ -107,7 +120,13 @@ cd ~/Documents/Jeremys-Team-Leader-Rep
 hermes
 ```
 
-Then ask it something real:
+You should see:
+
+```
+◆ 35 project skill(s) loaded from this repo
+```
+
+If you see that line, everything is wired correctly. Then ask it something real:
 
 > **Give me my Team Leader morning briefing.**
 
@@ -162,7 +181,12 @@ It prepares. You review. You decide.
 installer adds Hermes to your path, and existing windows do not see it.
 
 **"0 project skills"** — you are not inside the folder. Run
-`cd ~/Documents/Jeremys-Team-Leader-Rep` first, then `hermes`.
+`cd ~/Documents/Jeremys-Team-Leader-Rep` first, then `hermes`. If you are in the
+folder and still see 0, run `hermes skills trust` again.
+
+**The answers are generic and not about mortgage** — almost always the model.
+Run `hermes setup` and pick a stronger one. It should describe itself as a
+mortgage Team Leader assistant if you ask *"what industry do you assist with?"*
 
 **It says it does not know my team** — you have not filled in
 `team-data/team.yaml` yet, or you started Hermes from a different folder.

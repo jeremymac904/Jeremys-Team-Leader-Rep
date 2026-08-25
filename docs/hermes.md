@@ -119,11 +119,22 @@ Separate and not required for anything above.
 **The local model is for document review, not for chatting with Hermes.** Keep a
 normal cloud provider for conversation.
 
-The reason is context. Hermes sends a substantial system prompt plus tool
-schemas on every turn, and the local tiers in this package deliberately run at
-8K–32K context to leave memory for the operating system and document
-extraction. That is ample for reading one document; it is tight for an extended
-tool-using conversation.
+**Hermes enforces a 64,000-token minimum context window for its chat model.**
+Point it at a smaller one and it refuses outright:
+
+```
+Model local-model has a context window of 32,768 tokens, which is below the
+minimum 64,000 required by Hermes Agent.
+```
+
+The local tiers in this package run at 8K–32K on purpose, to leave memory for
+the operating system and document extraction. Raising a local model to 64K to
+satisfy Hermes was tested on a 24 GB machine and failed: the model loaded at
+13.1 GB but inference returned a compute error.
+
+That is fine, because it is not what the local model is for. Reading one
+document needs a few thousand tokens of context. Driving an extended tool-using
+conversation needs far more.
 
 So the two run side by side:
 

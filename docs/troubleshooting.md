@@ -77,6 +77,21 @@ bash scripts/hermes.sh setup
 ./vendor/hermes-venv/bin/python -m pip install -r requirements-local-ai.txt
 ```
 
+## Automation and scripting
+
+**`hermes -z "..."` gives generic answers**
+
+One-shot mode does not always resolve the project directory the way an
+interactive session does, so `AGENTS.md` may not be applied even though the
+skills load. Set `TERMINAL_CWD` when scripting:
+
+```bash
+cd ~/Documents/Jeremys-Team-Leader-Rep
+TERMINAL_CWD="$PWD" hermes -z "Give me my Team Leader morning briefing."
+```
+
+Interactive `hermes` started from inside the folder does not need this.
+
 ## Validation
 
 **`validate.py` fails on broken links**

@@ -38,6 +38,17 @@ your machine.
 - Compare documents against each other
 - Tell you what is missing from a file
 
+## It is not your chat model
+
+The local model reads documents. It does **not** replace your normal AI provider
+for talking to Hermes.
+
+Hermes requires a chat model with at least a **64,000-token context window**, and
+the local tiers here run at 8K–32K deliberately, to leave memory for the
+operating system and document extraction. Keep using whichever provider you set
+up with `hermes setup` for conversation; the local model runs alongside it for
+document review only.
+
 ## What it will never do
 
 It will not underwrite. It is not the underwriter, the lender, compliance, an
