@@ -182,6 +182,18 @@ def apply_answers(answers: dict) -> None:
     print(f"  personalized {relative(profile)}")
 
 
+def install_global_skills() -> None:
+    """Register the Team Leader skills globally so they work from any folder."""
+    import subprocess
+    print("\n  Making your Team Leader skills available everywhere:")
+    try:
+        subprocess.run([sys.executable, str(ROOT / "scripts" / "install_global_skills.py")],
+                       cwd=str(ROOT), timeout=300)
+    except (OSError, subprocess.SubprocessError) as exc:
+        print(f"    could not register globally ({exc})")
+        print("    run it yourself: python3 scripts/install_global_skills.py")
+
+
 def check_skills_trusted() -> bool:
     """Report whether Hermes has been told to trust this project's skills."""
     import subprocess
@@ -215,6 +227,7 @@ def main() -> int:
     print("Creating configuration files:")
     copy_templates(force=args.force)
     ensure_team_data()
+    install_global_skills()
 
     if args.demo:
         print("\n  --demo: keeping the fictional Northstar Lending Team as-is.")
@@ -234,19 +247,11 @@ Done. Your answers are saved on this computer only.
           development_areas what they actually struggle with, specifically
 """)
 
-    if not check_skills_trusted():
-        print("""  ONE MORE STEP: Hermes has not been told to trust this folder's skills yet.
-
-        hermes skills trust
-
-        You should see "35 project skill(s) will load".
-""")
-
-    print("""  THEN: start your agent from inside this folder
+    print("""  THEN: start Hermes from anywhere and ask
 
         hermes
 
-        and ask:  Give me my Team Leader morning briefing.
+        Give me my Team Leader morning briefing.
 """)
     return 0
 

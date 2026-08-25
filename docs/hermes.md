@@ -27,57 +27,29 @@ already have. This package does not require or prefer any particular one.
 
 ## How Hermes finds the Team Leader skills
 
-Hermes has a built-in feature for exactly this: **project-local skills**.
+`python3 scripts/setup.py` registers this repository's `.hermes/skills/`
+directory in `skills.external_dirs` in your Hermes config. That is Hermes's
+supported mechanism for loading skills from outside its own home, and it is
+**global** — every session sees them, from any directory, in Desktop and CLI.
 
-When you start Hermes from inside a Git repository, it looks for skills in
-`.hermes/skills/` at the repository root. This package puts its 35 skills
-there.
-
-For safety, Hermes will not load skills from a folder you have not approved.
-The first time, it tells you:
-
-```
-◆ 35 project skill(s) found in <folder> but not loaded —
-  run `hermes skills trust` to enable them.
-```
-
-So you approve it once:
+Run it directly any time:
 
 ```bash
-cd ~/Documents/Jeremys-Team-Leader-Rep
-hermes skills trust
+python3 scripts/install_global_skills.py          # register
+python3 scripts/install_global_skills.py --check  # verify
 ```
 
-```
-Trusted: <your home>/Documents/Jeremys-Team-Leader-Rep
-35 project skill(s) will load in sessions started inside this repo
-```
+The installer:
 
-That is the entire integration. Because Hermes reads the folder directly:
+- preserves every other setting in your Hermes config, and backs it up first
+- skips the entry if it is already present, so it is safe to re-run
+- verifies the skills are visible **from outside the repo**
 
-- A `git pull` updates your skills immediately — nothing to reinstall
-- Editing a skill takes effect the next time you start Hermes
-- Project skills take precedence over same-named skills in your own profile
-- Your other Hermes projects are unaffected
+Because nothing is copied, `git pull` updates your skills immediately.
 
-## Why you must start Hermes from inside the folder
-
-Project-local skills are resolved from your **current directory**. Starting
-Hermes somewhere else means it is not in this project, so the Team Leader skills
-do not load.
-
-```bash
-cd ~/Documents/Jeremys-Team-Leader-Rep   # ← this matters
-hermes
-```
-
-If you see 0 project skills, this is almost always why.
-
-Check any time:
-
-```bash
-hermes skills list
-```
+Previously this package used project-local skills, which only loaded when
+Hermes started inside the folder. Running setup migrates you to global loading.
+The old `hermes skills trust` entry is harmless and can stay.
 
 ## How Hermes knows how to behave
 

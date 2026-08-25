@@ -63,37 +63,30 @@ automations, and templates.
 
 ---
 
-## Step 3 — Open the folder in Hermes
+## Step 3 — Tell it about you, and install the skills
 
 ```bash
 cd ~/Documents/Jeremys-Team-Leader-Rep
-hermes skills trust
-```
-
-That second command tells Hermes it is allowed to use the skills in this
-folder. You should see:
-
-```
-35 project skill(s) will load in sessions started inside this repo
-```
-
-**That is the whole integration.** Nothing is copied or installed. Hermes
-reads the folder directly, so when you update the package later your skills
-update with it.
-
----
-
-## Step 4 — Tell it about you and your team
-
-```bash
 python3 scripts/setup.py
 ```
 
-It asks a short list of questions — your name, your team, your market, your
-goals, how you like to coach and communicate. Press Return to accept any
-default you do not care about.
+This does two things:
 
-Then open the roster file it created and put your real team in it:
+1. Asks a short list of questions — your name, team, market, goals, how you
+   coach and communicate. Press Return to accept any default.
+2. Registers the 35 Team Leader skills **globally** with Hermes.
+
+Global means they work in **every** Hermes session, from any folder, in both
+Hermes Desktop and the command line. You do not have to be "in" this folder.
+
+Nothing is copied — Hermes reads this folder directly, so `git pull` updates
+your skills with no reinstall.
+
+---
+
+## Step 4 — Add your team
+
+Open the roster file setup created and put your real team in it:
 
 ```
 team-data/team.yaml
@@ -112,21 +105,19 @@ anywhere.
 
 ## Step 5 — Start using it
 
-**Important: start Hermes from inside the folder.** That is how it knows this
-is your Team Leader project.
+From anywhere:
 
 ```bash
-cd ~/Documents/Jeremys-Team-Leader-Rep
 hermes
 ```
 
-You should see:
+Check the skills are there:
 
-```
-◆ 35 project skill(s) loaded from this repo
+```bash
+hermes skills list
 ```
 
-If you see that line, everything is wired correctly. Then ask it something real:
+Then ask it something real:
 
 > **Give me my Team Leader morning briefing.**
 
@@ -180,9 +171,17 @@ It prepares. You review. You decide.
 **"command not found: hermes"** — close Terminal and open a new one. The
 installer adds Hermes to your path, and existing windows do not see it.
 
-**"0 project skills"** — you are not inside the folder. Run
-`cd ~/Documents/Jeremys-Team-Leader-Rep` first, then `hermes`. If you are in the
-folder and still see 0, run `hermes skills trust` again.
+**Team Leader skills missing** — re-run
+`python3 scripts/install_global_skills.py` from the repo folder, then restart
+Hermes. If you use Hermes Desktop, fully quit and reopen it so it reloads the
+configuration.
+
+**Skills listed twice** — the installer skips duplicates. If you added the path
+by hand earlier, remove the duplicate line from `skills.external_dirs` in
+`~/.hermes/config.yaml`.
+
+**Hermes says the command is unknown** — your Hermes is too old. Run
+`hermes update`, then re-run the installer.
 
 **The answers are generic and not about mortgage** — almost always the model.
 Run `hermes setup` and pick a stronger one. It should describe itself as a

@@ -166,6 +166,48 @@ def test_skills():
 
 
 # ---------------------------------------------------------- public onboarding
+def test_global_skill_install():
+    """The global installer must be present, idempotent, and non-destructive."""
+    import importlib.util
+    script = ROOT / "scripts" / "install_global_skills.py"
+    check("global skill installer exists", script.exists())
+    if not script.exists():
+        return
+    spec = importlib.util.spec_from_file_location("igs", script)
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+
+    target = "/tmp/tl/.hermes/skills"
+
+    # Creates the block when absent.
+    out = mod.add_external_dir("", target)
+    check("creates skills.external_dirs", "skills:" in out and "external_dirs:" in out)
+    check("adds the path", target in out)
+
+    # Idempotent.
+    check("detects an existing entry", mod.already_listed(out, target))
+
+    # Preserves unrelated config.
+    existing = 'model:\n  provider: "anthropic"\napprovals:\n  mode: manual\n'
+    out2 = mod.add_external_dir(existing, target)
+    check("preserves unrelated config",
+          'provider: "anthropic"' in out2 and "mode: manual" in out2)
+    check("adds path to existing config", target in out2)
+
+    # Preserves existing external dirs.
+    with_dirs = 'skills:\n  external_dirs:\n    - "/existing/skills"\n'
+    out3 = mod.add_external_dir(with_dirs, target)
+    check("preserves existing external dirs", "/existing/skills" in out3)
+    check("appends alongside", target in out3)
+    check("no duplicate external_dirs key", out3.count("external_dirs:") == 1)
+
+    # Preserves a sibling key inside skills:.
+    sibling = 'skills:\n  trusted_project_dirs:\n    - /some/repo\n'
+    out4 = mod.add_external_dir(sibling, target)
+    check("preserves trusted_project_dirs", "/some/repo" in out4)
+    check("adds external_dirs alongside it", "external_dirs:" in out4 and target in out4)
+
+
 def test_public_onboarding_docs():
     """The onboarding path a Team Leader actually follows must be correct.
 
@@ -190,23 +232,24 @@ def test_public_onboarding_docs():
     for doc_name, doc in (("README", readme), ("START HERE", start_here)):
         check(f"{doc} uses the official Hermes installer",
               "NousResearch/hermes-agent/main/scripts/install.sh" in doc)
-        check(f"{doc} documents `hermes skills trust`",
-              "hermes skills trust" in doc)
-        check(f"{doc} tells the user to start Hermes inside the folder",
-              "cd ~/Documents/Jeremys-Team-Leader-Rep" in doc)
+        check(f"{doc} does not require launching Hermes from the repo",
+              "start Hermes **from inside it**" not in doc
+              and "start Hermes from inside the folder" not in doc)
 
     check("START HERE runs Team Leader setup",
           "python3 scripts/setup.py" in start_here)
+    check("START HERE says the skills are global",
+          "global" in start_here.lower())
     check("START HERE names the private roster file",
           "team-data/team.yaml" in start_here)
     check("START HERE gives starter prompts",
           "Team Leader morning briefing" in start_here)
 
     # Local AI must be optional, and must not appear before the core steps.
-    trust_at = start_here.index("hermes skills trust")
+    setup_at = start_here.index("python3 scripts/setup.py")
     local_at = start_here.find("local-ai")
     check("local AI comes after the core walkthrough",
-          local_at == -1 or local_at > trust_at)
+          local_at == -1 or local_at > setup_at)
     check("START HERE marks local AI optional",
           "Optional" in start_here or "optional" in start_here)
     check("the walkthrough does not require a model download",
@@ -476,7 +519,7 @@ def main() -> int:
     args = parser.parse_args()
 
     print("Team Leader OS — test suite\n")
-    for fn in (test_miniyaml, test_manifest, test_tier_selection, test_privacy,
+    for fn in (test_global_skill_install, test_miniyaml, test_manifest, test_tier_selection, test_privacy,
                test_skills, test_schemas, test_synthetic_documents,
                test_extraction, test_marketing, test_gitignore_protection,
                test_public_onboarding_docs, test_empty_human_verification_warning):

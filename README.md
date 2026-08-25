@@ -54,20 +54,17 @@ cloud AI service.
 |---|---|
 | 1 | **Hermes Agent** — the official installer, one command |
 | 2 | **This package** — `git clone`, one command |
-| 3 | **`hermes skills trust`** — one command, run inside the folder |
+| 3 | **`python3 scripts/setup.py`** — asks about your team and installs the skills globally |
 
 That's it. No developer tools, no build step, no configuration files to hand-edit.
 
-## What folder do I open?
+## Where do the skills work?
 
-The folder this repository creates. Start Hermes **from inside it**:
+**Everywhere.** Setup registers them globally with Hermes, so all 35 are
+available in any session, from any folder, in Hermes Desktop and the CLI.
 
-```bash
-cd ~/Documents/Jeremys-Team-Leader-Rep
-hermes
-```
-
-Being inside the folder is how Hermes knows this is your Team Leader project.
+This repository stays the source of truth — nothing is copied, so `git pull`
+updates your skills with no reinstall.
 
 ## What command do I run?
 
@@ -77,11 +74,9 @@ curl -fsSL https://raw.githubusercontent.com/NousResearch/hermes-agent/main/scri
 hermes setup
 git clone https://github.com/jeremymac904/Jeremys-Team-Leader-Rep.git
 cd Jeremys-Team-Leader-Rep
-hermes skills trust
 python3 scripts/setup.py
 
-# every time after that
-cd ~/Documents/Jeremys-Team-Leader-Rep
+# every time after that, from anywhere
 hermes
 ```
 
