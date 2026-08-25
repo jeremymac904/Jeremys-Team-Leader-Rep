@@ -11,6 +11,8 @@ server is running, so the default run stays fast and works on a fresh clone.
 from __future__ import annotations
 
 import argparse
+import contextlib
+import io
 import json
 import subprocess
 import sys
@@ -195,6 +197,30 @@ def test_schemas():
             check(f"{name}: has {field}", field in props)
         check(f"{name}: disclaims underwriting",
               "underwriting" in data.get("description", "").lower())
+
+
+# --------------------------------------------------------- review safeguards
+def test_empty_human_verification_warning():
+    import review as rv
+
+    report = {
+        "file": "fictional.pdf",
+        "privacy": {"mode_enabled": True, "category": "LOCAL_REQUIRED"},
+        "extraction": {"document_type": "paystub", "classification_confidence": "high",
+                       "page_count": 1, "methods_used": ["native"], "tables_found": 0,
+                       "characters": 100, "warnings": []},
+        "steps": [{"step": "structured extraction", "status": "ok", "detail": ""}],
+        "schema": "paystub",
+        "fields": {"employee_name": "Fictional Person", "human_verification_items": []},
+        "empty_fields": [],
+    }
+    capture = io.StringIO()
+    with contextlib.redirect_stdout(capture):
+        rv.print_report(report)
+    output = capture.getvalue()
+    check("empty verification list has explicit warning", "empty Human Verification Items" in output)
+    check("empty verification warning requires independent verification",
+          "Independently verify income, assets, dates, calculations" in output)
 
 
 # ------------------------------------------------------------------ synthetic
@@ -405,7 +431,7 @@ def main() -> int:
     for fn in (test_miniyaml, test_manifest, test_tier_selection, test_privacy,
                test_skills, test_schemas, test_synthetic_documents,
                test_extraction, test_marketing, test_gitignore_protection,
-               test_public_onboarding_docs):
+               test_public_onboarding_docs, test_empty_human_verification_warning):
         try:
             fn()
         except Exception as exc:  # noqa: BLE001

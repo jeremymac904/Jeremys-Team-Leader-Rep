@@ -67,6 +67,13 @@ SYSTEM_PROMPT = (
     "- Put anything uncertain into human_verification_items."
 )
 
+EMPTY_VERIFICATION_WARNING = (
+    "An empty Human Verification Items section does not mean this document has no issues. "
+    "Local AI assists with extraction and review only. Independently verify income, assets, "
+    "dates, calculations, documentation requirements, and underwriting considerations before "
+    "relying on this result."
+)
+
 
 def load_schema(name: str) -> dict | None:
     path = SCHEMA_DIR / f"{name}.schema.json"
@@ -447,6 +454,9 @@ def print_report(r: dict) -> None:
         if r.get("empty_fields"):
             print(f"\n  Not found in this document ({len(r['empty_fields'])}):")
             print("    " + ", ".join(r["empty_fields"][:14]))
+        if not r["fields"].get("human_verification_items"):
+            print("\n  IMPORTANT")
+            print("    " + EMPTY_VERIFICATION_WARNING)
         if r.get("suggested_skill"):
             print(f"\n  Next: interpret with the '{r['suggested_skill']}' skill.")
 
