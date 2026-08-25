@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """End-to-end local mortgage document review.
 
-    python3 scripts/local_ai/review.py <file>
-    python3 scripts/local_ai/review.py <file> --json
-    python3 scripts/local_ai/review.py <file> --extract-only
+    ./vendor/hermes-venv/bin/python scripts/local_ai/review.py <file>
+    ./vendor/hermes-venv/bin/python scripts/local_ai/review.py <file> --json
+    ./vendor/hermes-venv/bin/python scripts/local_ai/review.py <file> --extract-only
 
 The pipeline, in order, cheapest method first:
 
@@ -301,7 +301,7 @@ def review(path: Path, extract_only: bool) -> dict:
             return result
         if not srv.server_pid():
             detail = ("This page needs the local vision model, which is not running.\n"
-                      "    python3 scripts/local_ai/server.py start")
+                      "    ./vendor/hermes-venv/bin/python scripts/local_ai/server.py start")
             step("vision classification", "failed", detail)
             result["error"] = privacy.explain_local_failure(
                 "local vision classification", detail, config)
@@ -348,7 +348,7 @@ def review(path: Path, extract_only: bool) -> dict:
 
     if not srv.server_pid():
         detail = ("The local model server is not running. Start it with:\n"
-                  "    python3 scripts/local_ai/server.py start")
+                  "    ./vendor/hermes-venv/bin/python scripts/local_ai/server.py start")
         step("local model", "failed", detail)
         result["error"] = privacy.explain_local_failure("local model inference", detail, config)
         return result

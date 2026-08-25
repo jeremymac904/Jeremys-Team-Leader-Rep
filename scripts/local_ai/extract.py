@@ -7,9 +7,9 @@ reading a text layer that is already there.
 
     native text  ->  tables  ->  OCR  ->  page images for a vision model
 
-    python3 scripts/local_ai/extract.py <file>
-    python3 scripts/local_ai/extract.py <file> --json
-    python3 scripts/local_ai/extract.py <file> --classify-only
+    ./vendor/hermes-venv/bin/python scripts/local_ai/extract.py <file>
+    ./vendor/hermes-venv/bin/python scripts/local_ai/extract.py <file> --json
+    ./vendor/hermes-venv/bin/python scripts/local_ai/extract.py <file> --classify-only
 
 Supported: PDF (native text and scanned), DOCX, XLSX, and images.
 

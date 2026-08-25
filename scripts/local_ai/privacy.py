@@ -4,10 +4,10 @@
 This module answers one question: *is this workflow allowed to leave the
 machine?* Everything else in the local AI stack asks it before doing anything.
 
-    python3 scripts/local_ai/privacy.py status
-    python3 scripts/local_ai/privacy.py check paystub
-    python3 scripts/local_ai/privacy.py check "marketing content"
-    python3 scripts/local_ai/privacy.py on | off
+    ./vendor/hermes-venv/bin/python scripts/local_ai/privacy.py status
+    ./vendor/hermes-venv/bin/python scripts/local_ai/privacy.py check paystub
+    ./vendor/hermes-venv/bin/python scripts/local_ai/privacy.py check "marketing content"
+    ./vendor/hermes-venv/bin/python scripts/local_ai/privacy.py on | off
 
 Design rule: **fail closed**. Anything unrecognized is treated as
 LOCAL_REQUIRED while privacy mode is on. Getting this wrong in the permissive
@@ -144,7 +144,7 @@ def assert_local_allowed(workflow: str, endpoint_url: str, config: dict | None =
             f"your computer.\n\n"
             f"If you genuinely want to use a cloud model for this, turn privacy mode "
             f"off deliberately:\n"
-            f"    python3 scripts/local_ai/privacy.py off"
+            f"    ./vendor/hermes-venv/bin/python scripts/local_ai/privacy.py off"
         )
 
 
@@ -197,7 +197,7 @@ def audit(event: str, detail: dict, config: dict | None = None) -> None:
 def set_enabled(value: bool) -> int:
     if not CONFIG.exists():
         print("config/local-ai.yaml does not exist yet. Create it with:")
-        print("  python3 scripts/local_ai/setup_local_ai.py")
+        print("  ./vendor/hermes-venv/bin/python scripts/local_ai/setup_local_ai.py")
         return 1
     text = CONFIG.read_text(encoding="utf-8")
     updated, done = [], False
@@ -211,7 +211,7 @@ def set_enabled(value: bool) -> int:
     print(f"Local Privacy Mode is now {'ON' if value else 'OFF'}.")
     if not value:
         print("\n  WARNING: borrower documents may now be sent to cloud models.")
-        print("  Turn it back on with: python3 scripts/local_ai/privacy.py on")
+        print("  Turn it back on with: ./vendor/hermes-venv/bin/python scripts/local_ai/privacy.py on")
     return 0
 
 

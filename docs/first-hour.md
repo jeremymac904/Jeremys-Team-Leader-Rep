@@ -10,6 +10,7 @@ git clone https://github.com/jeremymac904/Jeremys-Team-Leader-Rep.git
 cd Jeremys-Team-Leader-Rep
 bash scripts/install_hermes.sh
 python3 scripts/setup.py
+python3 scripts/sync_agent.py
 bash scripts/hermes.sh setup      # choose a model
 ```
 
@@ -82,9 +83,10 @@ Separate, optional, and worth 20 minutes:
 
 ```bash
 brew install llama.cpp
-python3 scripts/local_ai/setup_local_ai.py
-python3 scripts/local_ai/server.py start
-python3 scripts/local_ai/review.py examples/synthetic-documents/synthetic-paystub.pdf
+./vendor/hermes-venv/bin/python -m pip install -r requirements-local-ai.txt
+./vendor/hermes-venv/bin/python scripts/local_ai/setup_local_ai.py
+./vendor/hermes-venv/bin/python scripts/local_ai/server.py start
+./vendor/hermes-venv/bin/python scripts/local_ai/review.py examples/synthetic-documents/synthetic-paystub.pdf
 ```
 
 That reviews a fictional paystub included here. Once you have seen it work, point it at a

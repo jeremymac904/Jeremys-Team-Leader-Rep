@@ -95,7 +95,7 @@ The manifest at `local-ai/models.manifest.yaml` is the single source of truth. B
 models will come out. Edit that file — nothing else needs to change.
 
 ```bash
-python3 scripts/local_ai/setup_local_ai.py --list
-python3 scripts/local_ai/setup_local_ai.py --model <id>
-python3 scripts/local_ai/setup_local_ai.py --remove <id>
+./vendor/hermes-venv/bin/python scripts/local_ai/setup_local_ai.py --list
+./vendor/hermes-venv/bin/python scripts/local_ai/setup_local_ai.py --model <id>
+./vendor/hermes-venv/bin/python scripts/local_ai/setup_local_ai.py --remove <id>
 ```

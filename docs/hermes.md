@@ -105,11 +105,14 @@ setting into a no-op.
 ## Using a local model
 
 ```bash
-python3 scripts/local_ai/server.py hermes-config
+./vendor/hermes-venv/bin/python scripts/local_ai/server.py hermes-config
 ```
 
-Prints the exact settings. Local inference uses the supported `custom` provider pointed at
-`127.0.0.1`. See [local-ai/](local-ai/README.md).
+Prints the current compatibility guidance. The documented local tiers are supported for
+private document review, but not as a Hermes chat provider: this Hermes release requires
+at least a 64K context window, while the local 8-32 GB tiers reserve memory by running at
+8K-32K. Use a cloud provider for Hermes chat workflows and the loopback local server for
+borrower document review. See [local-ai/](local-ai/README.md).
 
 ## Other AI tools
 

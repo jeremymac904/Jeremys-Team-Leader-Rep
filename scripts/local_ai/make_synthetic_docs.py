@@ -5,7 +5,7 @@ Everything produced is invented. Every page is stamped FICTIONAL TEST DATA.
 No real borrower information is used, and the layouts are plain generic
 constructions rather than copies of any lender's or agency's forms.
 
-    python3 scripts/local_ai/make_synthetic_docs.py
+    ./vendor/hermes-venv/bin/python scripts/local_ai/make_synthetic_docs.py
 
 Writes PDFs to examples/synthetic-documents/. These ARE committed, because
 they contain nothing private and the test suite depends on them.

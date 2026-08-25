@@ -162,6 +162,26 @@ def test_skills():
                   "underwrit" in body.lower())
 
 
+# ---------------------------------------------------------- public onboarding
+def test_public_onboarding_docs():
+    readme = (ROOT / "README.md").read_text(encoding="utf-8")
+    troubleshooting = (ROOT / "docs" / "troubleshooting.md").read_text(encoding="utf-8")
+    local_requirements = ROOT / "requirements-local-ai.txt"
+
+    check("README syncs the configured Team Leader profile",
+          "python3 scripts/sync_agent.py" in readme)
+    check("README configures a model before launch",
+          readme.index("bash scripts/hermes.sh setup") < readme.index("bash scripts/hermes.sh\n"))
+    check("README states current skill count", "35 purpose-built skills" in readme)
+    check("troubleshooting states current skill count", "Expect 35." in troubleshooting)
+    check("local AI dependency manifest exists", local_requirements.exists())
+    if local_requirements.exists():
+        requirements = local_requirements.read_text(encoding="utf-8")
+        check("local AI dependency manifest includes PyMuPDF", "PyMuPDF" in requirements)
+    check("README installs local dependencies in the private Hermes environment",
+          "./vendor/hermes-venv/bin/python -m pip install -r requirements-local-ai.txt" in readme)
+
+
 # -------------------------------------------------------------------- schemas
 def test_schemas():
     schemas = sorted(ROOT.joinpath("schemas").glob("*.schema.json"))
@@ -384,7 +404,8 @@ def main() -> int:
     print("Team Leader OS — test suite\n")
     for fn in (test_miniyaml, test_manifest, test_tier_selection, test_privacy,
                test_skills, test_schemas, test_synthetic_documents,
-               test_extraction, test_marketing, test_gitignore_protection):
+               test_extraction, test_marketing, test_gitignore_protection,
+               test_public_onboarding_docs):
         try:
             fn()
         except Exception as exc:  # noqa: BLE001

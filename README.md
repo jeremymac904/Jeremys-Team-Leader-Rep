@@ -12,6 +12,8 @@ git clone https://github.com/jeremymac904/Jeremys-Team-Leader-Rep.git
 cd Jeremys-Team-Leader-Rep
 bash scripts/install_hermes.sh
 python3 scripts/setup.py
+python3 scripts/sync_agent.py
+bash scripts/hermes.sh setup
 bash scripts/hermes.sh
 ```
 
@@ -21,7 +23,7 @@ Then ask: **"Give me my Team Leader morning briefing."**
 
 ## What is this?
 
-A repository containing a configured AI agent, 22 purpose-built skills, 35 automation
+A repository containing a configured AI agent, 35 purpose-built skills, 46 automation
 recipes, coaching frameworks, prompts, templates, and an optional local AI stack for
 mortgage document review.
 
@@ -134,17 +136,22 @@ python3 scripts/setup.py
 An interview: your name, team, market, goals, KPIs, coaching style, schedule. Everything
 has a sensible default — press Enter to accept.
 
-**4. Choose a model**
+**4. Sync your customized Team Leader profile into Hermes**
+```bash
+python3 scripts/sync_agent.py
+```
+
+**5. Choose a model**
 ```bash
 bash scripts/hermes.sh setup
 ```
 
-**5. Check everything**
+**6. Check everything**
 ```bash
 python3 scripts/validate.py
 ```
 
-**6. Start**
+**7. Start**
 ```bash
 bash scripts/hermes.sh
 ```
@@ -197,9 +204,10 @@ Optional, and the reason this repository exists in its current form.
 
 ```bash
 brew install llama.cpp
-python3 scripts/local_ai/setup_local_ai.py
-python3 scripts/local_ai/server.py start
-python3 scripts/local_ai/review.py examples/synthetic-documents/synthetic-paystub.pdf
+./vendor/hermes-venv/bin/python -m pip install -r requirements-local-ai.txt
+./vendor/hermes-venv/bin/python scripts/local_ai/setup_local_ai.py
+./vendor/hermes-venv/bin/python scripts/local_ai/server.py start
+./vendor/hermes-venv/bin/python scripts/local_ai/review.py examples/synthetic-documents/synthetic-paystub.pdf
 ```
 
 That last command reviews a **fictional** paystub included in this repository, so you can

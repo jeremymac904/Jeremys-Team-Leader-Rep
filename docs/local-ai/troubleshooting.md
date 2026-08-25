@@ -23,16 +23,16 @@ Usual causes:
   context (`-c`), or drop a tier.
 - **Corrupt download.** A partial file. Remove and re-download:
   ```bash
-  python3 scripts/local_ai/setup_local_ai.py --remove <model-id>
-  python3 scripts/local_ai/setup_local_ai.py --model <model-id>
+  ./vendor/hermes-venv/bin/python scripts/local_ai/setup_local_ai.py --remove <model-id>
+  ./vendor/hermes-venv/bin/python scripts/local_ai/setup_local_ai.py --model <model-id>
   ```
 - **Port already in use.** Change `reasoning_port` in `config/local-ai.yaml`.
 
 ## "The local model server is not running"
 
 ```bash
-python3 scripts/local_ai/server.py start
-python3 scripts/local_ai/server.py health
+./vendor/hermes-venv/bin/python scripts/local_ai/server.py start
+./vendor/hermes-venv/bin/python scripts/local_ai/server.py health
 ```
 
 This message is the no-fallback behavior working correctly. It refused to send your
@@ -78,7 +78,7 @@ record.
 Classification uses keyword signatures. Unusual layouts confuse it.
 
 ```bash
-python3 scripts/local_ai/extract.py <file> --classify-only
+./vendor/hermes-venv/bin/python scripts/local_ai/extract.py <file> --classify-only
 ```
 
 If confidence is `low`, say the type explicitly when you ask the agent.
@@ -86,14 +86,14 @@ If confidence is `low`, say the type explicitly when you ask the agent.
 ## Disk is filling up
 
 ```bash
-python3 scripts/local_ai/setup_local_ai.py --list
-python3 scripts/local_ai/setup_local_ai.py --remove <model-id>
+./vendor/hermes-venv/bin/python scripts/local_ai/setup_local_ai.py --list
+./vendor/hermes-venv/bin/python scripts/local_ai/setup_local_ai.py --remove <model-id>
 ```
 
 ## Verifying nothing left the machine
 
 ```bash
-python3 scripts/local_ai/privacy.py status
+./vendor/hermes-venv/bin/python scripts/local_ai/privacy.py status
 cat local_data/audit/privacy-audit.jsonl
 ```
 

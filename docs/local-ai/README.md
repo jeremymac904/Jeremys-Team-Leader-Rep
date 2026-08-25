@@ -49,9 +49,10 @@ relies on it.
 
 ```bash
 brew install llama.cpp
-python3 scripts/local_ai/setup_local_ai.py
-python3 scripts/local_ai/server.py start
-python3 scripts/local_ai/review.py examples/synthetic-documents/synthetic-paystub.pdf
+./vendor/hermes-venv/bin/python -m pip install -r requirements-local-ai.txt
+./vendor/hermes-venv/bin/python scripts/local_ai/setup_local_ai.py
+./vendor/hermes-venv/bin/python scripts/local_ai/server.py start
+./vendor/hermes-venv/bin/python scripts/local_ai/review.py examples/synthetic-documents/synthetic-paystub.pdf
 ```
 
 That last command reviews a fictional paystub that ships with this repository, so

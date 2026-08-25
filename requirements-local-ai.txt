@@ -1,0 +1,8 @@
+# Local document-processing dependencies. Install with:
+#   ./vendor/hermes-venv/bin/python -m pip install -r requirements-local-ai.txt
+PyMuPDF
+pytesseract
+Pillow
+pdfplumber
+python-docx
+openpyxl

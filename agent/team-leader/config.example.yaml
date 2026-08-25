@@ -34,7 +34,7 @@ agent:
   # Toolsets that can take real-world action are OFF.
   # Note what is NOT in this list and therefore stays available:
   #   file    — so the agent can read your config, roster, and skills
-  #   skills  — so it can use the 14 skills in agent/skills/
+  #   skills  — so it can use the 35 skills in this repository's skills/
   #   web     — research, if you enabled it at setup
   #   todo, memory, clarify
   # Verified against the toolset names Hermes actually accepts. Run

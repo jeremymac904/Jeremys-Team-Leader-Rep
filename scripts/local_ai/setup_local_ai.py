@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 """Set up local AI: detect hardware, pick a model, download it, configure Hermes.
 
-    python3 scripts/local_ai/setup_local_ai.py              interactive
-    python3 scripts/local_ai/setup_local_ai.py --dry-run    show the plan only
-    python3 scripts/local_ai/setup_local_ai.py --yes        skip the download prompt
-    python3 scripts/local_ai/setup_local_ai.py --model ID   download one model by id
-    python3 scripts/local_ai/setup_local_ai.py --list       show downloaded models
-    python3 scripts/local_ai/setup_local_ai.py --remove ID  delete a downloaded model
+    ./vendor/hermes-venv/bin/python scripts/local_ai/setup_local_ai.py              interactive
+    ./vendor/hermes-venv/bin/python scripts/local_ai/setup_local_ai.py --dry-run    show the plan only
+    ./vendor/hermes-venv/bin/python scripts/local_ai/setup_local_ai.py --yes        skip the download prompt
+    ./vendor/hermes-venv/bin/python scripts/local_ai/setup_local_ai.py --model ID   download one model by id
+    ./vendor/hermes-venv/bin/python scripts/local_ai/setup_local_ai.py --list       show downloaded models
+    ./vendor/hermes-venv/bin/python scripts/local_ai/setup_local_ai.py --remove ID  delete a downloaded model
 
 Model weights go to local_data/models/, which is gitignored. They are never
 committed. Nothing downloads without you approving the size first.
@@ -242,12 +242,12 @@ def main() -> int:
   Done.
 
   Next:
-    python3 scripts/local_ai/server.py start     start the local model
-    python3 scripts/local_ai/server.py health    confirm it is running
-    python3 scripts/local_ai/privacy.py status   confirm privacy mode
+    ./vendor/hermes-venv/bin/python scripts/local_ai/server.py start     start the local model
+    ./vendor/hermes-venv/bin/python scripts/local_ai/server.py health    confirm it is running
+    ./vendor/hermes-venv/bin/python scripts/local_ai/privacy.py status   confirm privacy mode
 
   Then try a fictional document:
-    python3 scripts/local_ai/review.py examples/synthetic-documents/synthetic-paystub.pdf
+    ./vendor/hermes-venv/bin/python scripts/local_ai/review.py examples/synthetic-documents/synthetic-paystub.pdf
 """)
     return 0
 

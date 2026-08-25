@@ -6,8 +6,8 @@ be determined reliably — the accelerator (Apple Silicon GPU, NVIDIA, AMD, or
 CPU only). It does not inspect files, serial numbers, or anything unrelated to
 picking a model size.
 
-    python3 scripts/local_ai/hardware.py           human-readable report
-    python3 scripts/local_ai/hardware.py --json    machine-readable
+    ./vendor/hermes-venv/bin/python scripts/local_ai/hardware.py           human-readable report
+    ./vendor/hermes-venv/bin/python scripts/local_ai/hardware.py --json    machine-readable
 
 Tier rule: memory rounds DOWN to the nearest supported tier. A 12 GB machine
 gets the 8 GB tier, 18 GB gets 16 GB, 28 GB gets 24 GB. Guessing upward on a
