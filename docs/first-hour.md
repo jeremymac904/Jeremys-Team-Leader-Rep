@@ -6,7 +6,7 @@ to something useful.
 ## 0–10 min — install
 
 ```bash
-git clone https://github.com/jeremymcdonald-prog/Jeremys-Team-Leader-Rep.git
+git clone https://github.com/jeremymac904/Jeremys-Team-Leader-Rep.git
 cd Jeremys-Team-Leader-Rep
 bash scripts/install_hermes.sh
 python3 scripts/setup.py

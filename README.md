@@ -8,7 +8,7 @@ the way you coach, prepares your meetings, and reviews loan documents **on your 
 computer** so borrower information never reaches a cloud AI service.
 
 ```bash
-git clone https://github.com/jeremymcdonald-prog/Jeremys-Team-Leader-Rep.git
+git clone https://github.com/jeremymac904/Jeremys-Team-Leader-Rep.git
 cd Jeremys-Team-Leader-Rep
 bash scripts/install_hermes.sh
 python3 scripts/setup.py
@@ -116,7 +116,7 @@ Optional, only for local document review:
 
 **1. Get the repository**
 ```bash
-git clone https://github.com/jeremymcdonald-prog/Jeremys-Team-Leader-Rep.git
+git clone https://github.com/jeremymac904/Jeremys-Team-Leader-Rep.git
 cd Jeremys-Team-Leader-Rep
 ```
 

@@ -4,8 +4,8 @@ The durable record of this build. Any coding agent — Claude Code, Codex, Herme
 person — should be able to read this file and continue without the original conversation.
 
 **Last updated:** 2026-08-25
-**Version:** 0.2.0 (pre-release)
-**Phase:** 11 of 12 — testing and validation complete; preparing the initial release
+**Version:** 0.3.0
+**Phase:** 12 of 12 — **PUBLISHED**. Initial release is live on GitHub.
 
 ---
 
@@ -23,8 +23,23 @@ Three layers, all core:
 4. **Marketing system** — 10 marketing skills over a shared knowledge base, with
    per-Loan-Officer archetypes so coaching is specific rather than generic
 
-Source material: the local Loan Factory Coaching Build. Target:
-`https://github.com/jeremymcdonald-prog/Jeremys-Team-Leader-Rep` (public).
+Source material: the local Loan Factory Coaching Build.
+
+**Repository:** `https://github.com/jeremymac904/Jeremys-Team-Leader-Rep` (public)
+
+### GitHub status
+- **Authorization restored:** 2026-08-25. Account `jeremymac904` — admin and push.
+- **Repository changed:** the original target `jeremymcdonald-prog/Jeremys-Team-Leader-Rep`
+  was owned by a different GitHub user, and neither authenticated account was ever a
+  collaborator on it. Jeremy supplied `jeremymac904/Jeremys-Team-Leader-Rep` instead, which
+  the authenticated account owns.
+- **First push:** 2026-08-25, commit `c202f10`, 151 files.
+- The remote had been initialized with a LICENSE-only commit on an unrelated history. That
+  commit was **merged, not force-pushed** — the LICENSE was byte-identical, so nothing was
+  discarded and the repository's own initial commit is preserved.
+- **Verified after push:** local HEAD matches `origin/main`; GitHub reports 151 blobs and
+  **0 restricted paths** (no model weights, vendor, hermes-home, borrower documents,
+  internal training assets, or `.env`).
 
 ---
 
@@ -125,9 +140,9 @@ hermes-home/                 GITIGNORED — isolated HERMES_HOME
 
 ## 6. Tests and security checks
 
-- `tests/run_tests.py` — **432/432 passing** with `--local-ai`
-- `scripts/validate.py` — 11 structural checks, including marketing archetype drift and
-  content-mix totals
+- `tests/run_tests.py` — **477/477 passing**
+- `scripts/validate.py` — 12 structural checks, including marketing archetype drift,
+  content-mix totals, and document-type skill/schema routing
 - `scripts/privacy_scan.py` — secret and PII scan over everything git would commit
 - Gitignore protection asserted in the test suite for models, borrower docs, and configs
 - Hermes profile validated against the installed Hermes: real config keys, real toolset names
@@ -140,13 +155,15 @@ hermes-home/                 GITIGNORED — isolated HERMES_HOME
    Marked `recommended-untested`.
 2. **Vision path untested end to end.** OCR handled every test document, so the
    `mmproj` fallback never triggered.
+   *(Qwen3-VL 8B Q8 download in progress to close this.)*
 3. **Only macOS / Apple Silicon validated.** Windows, Linux, NVIDIA, and AMD code paths
    are written but unexercised.
 4. **The model reformats values.** `8,412.55` came back as `8412.55`. Values correct,
    formatting not preserved.
 5. **25–35 s per document** on an M4 Pro. Not suitable for bulk processing.
-6. **No synthetic tax return or Closing Disclosure** yet, though both schemas exist.
-7. **Push blocked:** neither authenticated `gh` account has push access to the target repo.
+6. ~~No synthetic tax return or Closing Disclosure~~ — **resolved.** Both added; all 9
+   synthetic documents classify correctly at high confidence.
+7. ~~Push blocked~~ — **resolved.** Published to `jeremymac904/Jeremys-Team-Leader-Rep`.
 8. **Marketing output not yet validated against a live model.** The marketing skills are
    structurally tested — archetype differentiation, knowledge references, compliance
    linkage — but no generated marketing content has been reviewed for quality by a human.
@@ -169,11 +186,13 @@ hermes-home/                 GITIGNORED — isolated HERMES_HOME
 
 ## 9. Next actions
 
-1. Resolve GitHub push access (see §7.7)
-2. Finish remaining root documentation (README, CHANGELOG, CONTRIBUTING, SECURITY)
-3. Final privacy and secret audit over the full tracked file list
-4. Initial commit and push
-5. Post-release: validate the 32 GB tier and the vision path
+1. ~~Resolve GitHub push access~~ — done
+2. ~~Initial commit and push~~ — done, `c202f10`
+3. **In progress:** download Qwen3-VL 8B Q8 and validate the reasoning/vision layer,
+   which has never been loaded
+4. Validate the vision path on a page OCR cannot read
+5. Validate the 32 GB tier — requires hardware this project does not have
+6. Live-model quality review of generated marketing content
 
 ---
 

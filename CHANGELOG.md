@@ -4,6 +4,33 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 Versioning is [Semantic](https://semver.org/): breaking changes to configuration or skill
 structure bump the major version.
 
+## [0.3.0] — 2026-08-25
+
+**First public release.** Published to
+`https://github.com/jeremymac904/Jeremys-Team-Leader-Rep` at commit `c202f10`.
+
+### Fixed
+- **Document classifier misidentified a Closing Disclosure as a purchase contract.**
+  Both matched three generic markers ("seller", "earnest money", "closing date" appear on
+  both), and the tie resolved by dictionary order. Replaced unweighted counting with
+  weighted markers plus a margin requirement. All 9 synthetic documents now classify
+  correctly at high confidence.
+- **Three dangling skill references.** `review.py` routed `tax_return`,
+  `closing_disclosure`, and `mortgage_statement` to skills that were never built, so the
+  pipeline reported a handoff that could not happen.
+
+### Added
+- `tax-return-review` — schedules present, income by character, add-back candidates
+  flagged for underwriting. Never computes qualifying income.
+- `closing-disclosure-review` — section breakdown, line-by-line cash to close, LE-vs-CD
+  deltas. Does not apply tolerance rules or declare a cure owed.
+- `mortgage-statement-review` — payment composition, escrow, past due. States that the
+  balance is not a payoff figure.
+- Synthetic tax return and Closing Disclosure test documents
+- Validation check that every document type routes to a skill and schema that exist
+
+Skills 32 → 35. Validation 11 → 12 checks. Tests 432 → 477.
+
 ## [0.2.0] — 2026-08-25
 
 Marketing system, built from four Loan Factory marketing source packages.
