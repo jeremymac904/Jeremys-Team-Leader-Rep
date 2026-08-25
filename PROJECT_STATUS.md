@@ -18,7 +18,7 @@ mortgage documents without sending them to a cloud provider.
 Three layers, all core:
 
 1. **Team Leader Hermes Agent** — persona, operating instructions, safety profile
-2. **Custom skill library** — 32 Hermes skills loaded from this repository
+2. **Custom skill library** — 35 Hermes skills loaded from this repository
 3. **Local AI + document analysis** — llama.cpp, Qwen3-VL, NuExtract 3, Local Privacy Mode
 4. **Marketing system** — 10 marketing skills over a shared knowledge base, with
    per-Loan-Officer archetypes so coaching is specific rather than generic
@@ -73,12 +73,12 @@ AGENTS.md                    agent operating instructions (Hermes auto-injects)
 agent/team-leader/           SOUL template, Hermes profile template
 skills/
   team-leadership/           14 skills
-  mortgage-documents/        8 skills
+  mortgage-documents/        11 skills
   marketing/                 10 skills
 knowledge/marketing/         9 shared knowledge files
 assets/branding/             official Loan Factory logo + derivative
 config/                      *.example.yaml templates (real configs gitignored)
-automations/                 catalog.yaml (35 automations) + schema + index
+automations/                 catalog.yaml (46 automations) + schema + index
 coaching/frameworks/         7 coaching methodology documents
 prompts/                     9 topic prompt files
 templates/                   9 fill-in artifacts
@@ -89,8 +89,8 @@ scripts/
   local_ai/                  hardware, privacy, extract, review, server, setup, synthetic docs
   setup.py validate.py privacy_scan.py sync_agent.py
   install_hermes.sh hermes.sh
-examples/synthetic-documents/ 7 fictional PDFs
-tests/run_tests.py           327 tests
+examples/synthetic-documents/ 9 fictional PDFs
+tests/run_tests.py           public test suite
 docs/                        including docs/local-ai/
 local_data/                  GITIGNORED — models, borrower documents, audit
 vendor/                      GITIGNORED — fresh Hermes clone + venv
@@ -105,7 +105,7 @@ hermes-home/                 GITIGNORED — isolated HERMES_HOME
 - **Phase 3** Architecture
 - **Phase 4** Hermes agent: AGENTS.md, SOUL template, locked-down profile
 - **Phase 5** Customization: 5 config templates + interview-style `setup.py`
-- **Phase 6** 35-automation library with a validated schema, all inactive
+- **Phase 6** 46-automation library with a validated schema, all inactive
 - **Phase 7** 9 prompt files, 7 coaching frameworks
 - **Phase 8** 9 templates, 7 synthetic documents, fictional sample team
 - **Phase 9** setup / validate / privacy-scan / sync / install / hermes launcher
@@ -202,7 +202,7 @@ hermes-home/                 GITIGNORED — isolated HERMES_HOME
 bash scripts/install_hermes.sh          # fresh isolated Hermes into vendor/
 python3 scripts/sync_agent.py           # load the agent into hermes-home/
 python3 scripts/setup.py                # configure identity and team
-python3 scripts/local_ai/setup_local_ai.py   # optional local AI
+./vendor/hermes-venv/bin/python scripts/local_ai/setup_local_ai.py   # optional local AI
 ./vendor/hermes-venv/bin/python tests/run_tests.py --local-ai
 python3 scripts/validate.py
 python3 scripts/privacy_scan.py

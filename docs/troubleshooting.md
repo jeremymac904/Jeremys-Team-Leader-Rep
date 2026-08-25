@@ -37,7 +37,7 @@ should say so. Create the real file.
 ```bash
 bash scripts/hermes.sh skills list
 ```
-Expect 22. If zero, the profile is not pointed at the repository:
+Expect 35. If zero, the profile is not pointed at the repository:
 ```bash
 python3 scripts/sync_agent.py
 grep -A3 "external_dirs" hermes-home/config.yaml
@@ -70,6 +70,11 @@ No. The clone in `vendor/` and the home in `hermes-home/` are separate from `~/.
 **No model configured**
 ```bash
 bash scripts/hermes.sh setup
+```
+
+**`No module named pymupdf` during local document review**
+```bash
+./vendor/hermes-venv/bin/python -m pip install -r requirements-local-ai.txt
 ```
 
 ## Validation

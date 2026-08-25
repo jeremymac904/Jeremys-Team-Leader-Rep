@@ -114,7 +114,27 @@ tested.
 
 ## Optional: running a model locally
 
-Separate and not required. See [local-ai/](local-ai/README.md).
+Separate and not required for anything above.
+
+**The local model is for document review, not for chatting with Hermes.** Keep a
+normal cloud provider for conversation.
+
+The reason is context. Hermes sends a substantial system prompt plus tool
+schemas on every turn, and the local tiers in this package deliberately run at
+8K–32K context to leave memory for the operating system and document
+extraction. That is ample for reading one document; it is tight for an extended
+tool-using conversation.
+
+So the two run side by side:
+
+| Workflow | Model |
+|---|---|
+| Talking to your Team Leader Agent | Your normal cloud provider |
+| Reviewing a borrower document | The local model on `127.0.0.1` |
+
+Local Privacy Mode enforces the second: borrower documents are routed to the
+local endpoint and refuse a cloud one. See
+[local-ai/privacy-mode.md](local-ai/privacy-mode.md).
 
 ## For maintainers: isolated testing
 

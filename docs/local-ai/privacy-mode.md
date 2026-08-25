@@ -30,9 +30,9 @@ a question. Only one of those is recoverable.
 ## Check anything
 
 ```bash
-python3 scripts/local_ai/privacy.py status
-python3 scripts/local_ai/privacy.py check "bank statement"      # LOCAL_REQUIRED
-python3 scripts/local_ai/privacy.py check "marketing content"   # CLOUD_ACCEPTABLE
+./vendor/hermes-venv/bin/python scripts/local_ai/privacy.py status
+./vendor/hermes-venv/bin/python scripts/local_ai/privacy.py check "bank statement"      # LOCAL_REQUIRED
+./vendor/hermes-venv/bin/python scripts/local_ai/privacy.py check "marketing content"   # CLOUD_ACCEPTABLE
 ```
 
 ## What happens when a local step fails
@@ -58,7 +58,7 @@ Nothing happens until you choose. There is no automatic fallback.
 ## Turning it off
 
 ```bash
-python3 scripts/local_ai/privacy.py off
+./vendor/hermes-venv/bin/python scripts/local_ai/privacy.py off
 ```
 
 You will get a warning. Think carefully — with it off, borrower documents may be sent

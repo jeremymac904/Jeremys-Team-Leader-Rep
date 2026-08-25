@@ -55,23 +55,16 @@ text that is already there.
 
 ## Hermes integration
 
-Local inference uses **supported Hermes configuration only**. No Hermes source was
-modified.
+Local document inference uses llama.cpp directly. No Hermes source was modified.
 
-`llama-server` exposes an OpenAI-compatible API. Hermes talks to it as a `custom`
-provider (`llamacpp`, `ollama`, and `vllm` are aliases for `custom`):
+`llama-server` exposes an OpenAI-compatible API on loopback. The documented local tiers
+are intended for private document review, not Hermes chat: current Hermes releases require
+at least 64K model context, while these tiers use 8K-32K to fit safely in memory. Use your
+chosen cloud provider for Hermes chat workflows and the local server for borrower documents.
 
-```yaml
-model:
-  provider: "custom"
-  base_url: "http://127.0.0.1:8080/v1"
-  default: "local-model"
-  api_key: "not-needed"
-```
-
-Generate this for your setup:
+Check the current compatibility guidance for your setup:
 ```bash
-python3 scripts/local_ai/server.py hermes-config
+./vendor/hermes-venv/bin/python scripts/local_ai/server.py hermes-config
 ```
 
 Skills load through `skills.external_dirs`, also a supported Hermes mechanism —
@@ -120,7 +113,7 @@ The manifest is the single source of truth. To evaluate something new:
 1. Confirm it has GGUF files and an `mmproj` if you need vision
 2. Check the license permits commercial use
 3. Add an entry to `local-ai/models.manifest.yaml` with `status: experimental`
-4. `python3 scripts/local_ai/setup_local_ai.py --model <your-id>`
+4. `./vendor/hermes-venv/bin/python scripts/local_ai/setup_local_ai.py --model <your-id>`
 5. Test it against `examples/synthetic-documents/` before trusting it
 
 Hermes ships a built-in `llama-cpp` skill that helps pick GGUF quantizations from the

@@ -5,11 +5,11 @@ llama-server exposes an OpenAI-compatible API on 127.0.0.1. That is what makes
 this work cleanly with Hermes: Hermes talks to it as a "custom" provider with a
 local base_url, using supported configuration and no changes to Hermes itself.
 
-    python3 scripts/local_ai/server.py start [--model ID]
-    python3 scripts/local_ai/server.py stop
-    python3 scripts/local_ai/server.py health
-    python3 scripts/local_ai/server.py test
-    python3 scripts/local_ai/server.py hermes-config
+    ./vendor/hermes-venv/bin/python scripts/local_ai/server.py start [--model ID]
+    ./vendor/hermes-venv/bin/python scripts/local_ai/server.py stop
+    ./vendor/hermes-venv/bin/python scripts/local_ai/server.py health
+    ./vendor/hermes-venv/bin/python scripts/local_ai/server.py test
+    ./vendor/hermes-venv/bin/python scripts/local_ai/server.py hermes-config
 
 The server binds to loopback only. It is not reachable from your network.
 """
@@ -121,7 +121,7 @@ def start(model_id: str | None, context: int | None) -> int:
     gguf, mmproj = model_files(model)
     if not gguf.exists():
         print(f"Model not downloaded: {model['id']}")
-        print("  python3 scripts/local_ai/setup_local_ai.py")
+        print("  ./vendor/hermes-venv/bin/python scripts/local_ai/setup_local_ai.py")
         return 1
 
     cfg = engine_cfg()
@@ -196,7 +196,7 @@ def health() -> int:
     print(f"  Loopback : {'yes' if '127.0.0.1' in url or 'localhost' in url else 'NO — CHECK THIS'}")
     if not pid:
         print("  Status   : not running")
-        print("\n  Start it with: python3 scripts/local_ai/server.py start\n")
+        print("\n  Start it with: ./vendor/hermes-venv/bin/python scripts/local_ai/server.py start\n")
         return 1
     print(f"  Process  : running (pid {pid})")
     models = http_json(url + "/models", timeout=5)
@@ -243,31 +243,28 @@ def test() -> int:
 
 
 def hermes_config() -> int:
-    """Print the exact Hermes settings for pointing it at the local model."""
-    url = base_url()
-    print(f"""
-  Point Hermes at your local model
-  {'-' * 60}
+    """Explain the current Hermes/local-model compatibility boundary."""
+    print("""
+  Hermes chat and this local document model
+  ------------------------------------------------------------
 
-  Local inference uses supported Hermes provider configuration. No changes to
-  Hermes itself. Add this to hermes-home/config.yaml:
+  The local server is supported for private document review. Current Hermes
+  releases require a chat model context window of at least 64K, while the
+  documented local tiers start llama.cpp at 8K-32K to preserve memory for
+  document review. On a 24 GB Q8 setup, raising it to 64K exhausts memory.
 
-    model:
-      provider: "custom"
-      base_url: "{url}"
-      default: "local-model"
-      api_key: "not-needed"
+  Do not configure this server as Hermes's chat provider at this time. Use a
+  cloud provider for Hermes chat workflows, and keep borrower document review
+  on this loopback-only local server. Local Privacy Mode still prevents a
+  borrower document from silently falling back to a cloud endpoint.
 
-  Or from the command line:
+  Check the active local endpoint:
 
-    bash scripts/hermes.sh model --provider custom --base-url {url}
+    ./vendor/hermes-venv/bin/python scripts/local_ai/server.py health
 
-  To switch back to a cloud model:
+  To choose Hermes's chat provider:
 
-    bash scripts/hermes.sh model
-
-  Hermes treats "llamacpp", "ollama", and "vllm" as aliases for "custom",
-  so any of them work here.
+    bash scripts/hermes.sh setup
 """)
     return 0
 

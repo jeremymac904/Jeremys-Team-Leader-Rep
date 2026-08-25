@@ -149,8 +149,12 @@ An add-on that runs an AI model **on your own computer** so borrower documents
 never leave it. Reads paystubs, W-2s, bank statements, tax returns, purchase
 contracts, Loan Estimates, and Closing Disclosures — including scanned ones.
 
-It needs a multi-gigabyte model download. Set it up when you actually want it:
-**[docs/local-ai/README.md](docs/local-ai/README.md)**
+It needs a multi-gigabyte model download and a few extra Python packages. Set it
+up when you actually want it: **[docs/local-ai/README.md](docs/local-ai/README.md)**
+
+Note: the local model is for **document review**, not for chatting with Hermes.
+Keep using your normal cloud provider for conversation — see
+[docs/hermes.md](docs/hermes.md#optional-running-a-model-locally).
 
 ## Updating
 

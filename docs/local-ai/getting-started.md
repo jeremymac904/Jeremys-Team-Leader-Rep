@@ -32,10 +32,19 @@ Check it worked:
 llama-server --version
 ```
 
+Install the local document-processing components:
+```bash
+./vendor/hermes-venv/bin/python -m pip install -r requirements-local-ai.txt
+```
+
+They provide PDF text extraction, page rendering, OCR support, tables, Word, and Excel
+file extraction. They install into the private Hermes environment created by
+`bash scripts/install_hermes.sh`; use that same Python for the commands below.
+
 ## Step 2 — run setup
 
 ```bash
-python3 scripts/local_ai/setup_local_ai.py
+./vendor/hermes-venv/bin/python scripts/local_ai/setup_local_ai.py
 ```
 
 It will:
@@ -52,7 +61,7 @@ Want to see the plan without downloading? Add `--dry-run`.
 ## Step 3 — start the model
 
 ```bash
-python3 scripts/local_ai/server.py start
+./vendor/hermes-venv/bin/python scripts/local_ai/server.py start
 ```
 
 The first start takes a minute or two while the model loads into memory. After that
@@ -60,8 +69,8 @@ it stays running until you stop it.
 
 Check it:
 ```bash
-python3 scripts/local_ai/server.py health
-python3 scripts/local_ai/server.py test
+./vendor/hermes-venv/bin/python scripts/local_ai/server.py health
+./vendor/hermes-venv/bin/python scripts/local_ai/server.py test
 ```
 
 ## Step 4 — review a fictional document
@@ -69,7 +78,7 @@ python3 scripts/local_ai/server.py test
 Seven fictional documents ship with this repository. Nothing real, nothing private.
 
 ```bash
-python3 scripts/local_ai/review.py examples/synthetic-documents/synthetic-paystub.pdf
+./vendor/hermes-venv/bin/python scripts/local_ai/review.py examples/synthetic-documents/synthetic-paystub.pdf
 ```
 
 You will see each pipeline step, the extracted fields with the page they came from,
@@ -78,7 +87,7 @@ and a list of what a human must verify.
 ## Step 5 — confirm it stayed local
 
 ```bash
-python3 scripts/local_ai/privacy.py status
+./vendor/hermes-venv/bin/python scripts/local_ai/privacy.py status
 ```
 
 The review output also shows the inference endpoint. It should read
@@ -90,7 +99,7 @@ For a harder proof, turn off your wi-fi and run a review again. It still works.
 
 ```bash
 cp ~/Downloads/paystub.pdf local_data/borrower_documents/
-python3 scripts/local_ai/review.py local_data/borrower_documents/paystub.pdf
+./vendor/hermes-venv/bin/python scripts/local_ai/review.py local_data/borrower_documents/paystub.pdf
 ```
 
 `local_data/` is gitignored. Nothing in it is ever committed.
@@ -98,9 +107,9 @@ python3 scripts/local_ai/review.py local_data/borrower_documents/paystub.pdf
 ## Stopping and cleaning up
 
 ```bash
-python3 scripts/local_ai/server.py stop            # stop the model, free the memory
-python3 scripts/local_ai/setup_local_ai.py --list  # see what is downloaded
-python3 scripts/local_ai/setup_local_ai.py --remove qwen3-vl-8b-q8   # delete a model
+./vendor/hermes-venv/bin/python scripts/local_ai/server.py stop            # stop the model, free the memory
+./vendor/hermes-venv/bin/python scripts/local_ai/setup_local_ai.py --list  # see what is downloaded
+./vendor/hermes-venv/bin/python scripts/local_ai/setup_local_ai.py --remove qwen3-vl-8b-q8   # delete a model
 ```
 
 ## Going back to a cloud model

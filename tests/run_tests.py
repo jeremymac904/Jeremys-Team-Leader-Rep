@@ -11,6 +11,8 @@ server is running, so the default run stays fast and works on a fresh clone.
 from __future__ import annotations
 
 import argparse
+import contextlib
+import io
 import json
 import subprocess
 import sys
@@ -163,6 +165,73 @@ def test_skills():
                   "underwrit" in body.lower())
 
 
+# ---------------------------------------------------------- public onboarding
+def test_public_onboarding_docs():
+    """The onboarding path a Team Leader actually follows must be correct.
+
+    Asserts the supported Hermes workflow: install official Hermes, clone this
+    package, trust the project skills, run setup, start Hermes from inside the
+    folder. Local AI must stay OUT of that path.
+    """
+    readme = (ROOT / "README.md").read_text(encoding="utf-8")
+    start_here_path = ROOT / "START-HERE-LOAN-FACTORY-TEAM-LEADERS.md"
+    troubleshooting = (ROOT / "docs" / "troubleshooting.md").read_text(encoding="utf-8")
+    local_requirements = ROOT / "requirements-local-ai.txt"
+
+    check("START HERE guide exists", start_here_path.exists())
+    if not start_here_path.exists():
+        return
+    start_here = start_here_path.read_text(encoding="utf-8")
+
+    check("README links to the START HERE guide",
+          "START-HERE-LOAN-FACTORY-TEAM-LEADERS.md" in readme)
+
+    # The official Hermes install, not a bundled one.
+    for doc_name, doc in (("README", readme), ("START HERE", start_here)):
+        check(f"{doc} uses the official Hermes installer",
+              "NousResearch/hermes-agent/main/scripts/install.sh" in doc)
+        check(f"{doc} documents `hermes skills trust`",
+              "hermes skills trust" in doc)
+        check(f"{doc} tells the user to start Hermes inside the folder",
+              "cd ~/Documents/Jeremys-Team-Leader-Rep" in doc)
+
+    check("START HERE runs Team Leader setup",
+          "python3 scripts/setup.py" in start_here)
+    check("START HERE names the private roster file",
+          "team-data/team.yaml" in start_here)
+    check("START HERE gives starter prompts",
+          "Team Leader morning briefing" in start_here)
+
+    # Local AI must be optional, and must not appear before the core steps.
+    trust_at = start_here.index("hermes skills trust")
+    local_at = start_here.find("local-ai")
+    check("local AI comes after the core walkthrough",
+          local_at == -1 or local_at > trust_at)
+    check("START HERE marks local AI optional",
+          "Optional" in start_here or "optional" in start_here)
+    check("the walkthrough does not require a model download",
+          "setup_local_ai" not in start_here)
+
+    # No bundled-Hermes instructions in the Team Leader path.
+    for doc_name, doc in (("README", readme), ("START HERE", start_here)):
+        check(f"{doc_name} does not tell Team Leaders to run the bundled Hermes",
+              "bash scripts/hermes.sh" not in doc)
+        check(f"{doc_name} does not require sync_agent",
+              "scripts/sync_agent.py" not in doc)
+
+    skill_count = len(list(SKILLS_DIR.rglob("SKILL.md")))
+    check("README states the real skill count",
+          f"{skill_count} skills" in readme or f"{skill_count} purpose-built skills" in readme,
+          f"{skill_count} skills installed")
+    check("troubleshooting states the real skill count",
+          f"Expect {skill_count}." in troubleshooting)
+
+    check("local AI dependency manifest exists", local_requirements.exists())
+    if local_requirements.exists():
+        requirements = local_requirements.read_text(encoding="utf-8")
+        check("local AI dependency manifest includes PyMuPDF", "PyMuPDF" in requirements)
+
+
 # -------------------------------------------------------------------- schemas
 def test_schemas():
     schemas = sorted(ROOT.joinpath("schemas").glob("*.schema.json"))
@@ -176,6 +245,30 @@ def test_schemas():
             check(f"{name}: has {field}", field in props)
         check(f"{name}: disclaims underwriting",
               "underwriting" in data.get("description", "").lower())
+
+
+# --------------------------------------------------------- review safeguards
+def test_empty_human_verification_warning():
+    import review as rv
+
+    report = {
+        "file": "fictional.pdf",
+        "privacy": {"mode_enabled": True, "category": "LOCAL_REQUIRED"},
+        "extraction": {"document_type": "paystub", "classification_confidence": "high",
+                       "page_count": 1, "methods_used": ["native"], "tables_found": 0,
+                       "characters": 100, "warnings": []},
+        "steps": [{"step": "structured extraction", "status": "ok", "detail": ""}],
+        "schema": "paystub",
+        "fields": {"employee_name": "Fictional Person", "human_verification_items": []},
+        "empty_fields": [],
+    }
+    capture = io.StringIO()
+    with contextlib.redirect_stdout(capture):
+        rv.print_report(report)
+    output = capture.getvalue()
+    check("empty verification list has explicit warning", "empty Human Verification Items" in output)
+    check("empty verification warning requires independent verification",
+          "Independently verify income, assets, dates, calculations" in output)
 
 
 # ------------------------------------------------------------------ synthetic
@@ -385,7 +478,8 @@ def main() -> int:
     print("Team Leader OS — test suite\n")
     for fn in (test_miniyaml, test_manifest, test_tier_selection, test_privacy,
                test_skills, test_schemas, test_synthetic_documents,
-               test_extraction, test_marketing, test_gitignore_protection):
+               test_extraction, test_marketing, test_gitignore_protection,
+               test_public_onboarding_docs, test_empty_human_verification_warning):
         try:
             fn()
         except Exception as exc:  # noqa: BLE001

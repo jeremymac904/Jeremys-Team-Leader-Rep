@@ -11,9 +11,9 @@ can casually flip; it is the design.
 
 ## Everything ships inactive
 
-All 35 automations in `automations/catalog.yaml` have `active: false`. The library is a
-catalog of things you *could* set up, not a set of running jobs. Most need no setup at
-all — copy the `prompt` field into a conversation and you are done.
+All 46 automations in `automations/catalog.yaml` inherit `defaults.active: false`. The
+library is a catalog of things you *could* set up, not a set of running jobs. Most need no
+setup at all — copy the `prompt` field into a conversation and you are done.
 
 `scripts/validate.py` fails if any catalog entry is `active: true`.
 
