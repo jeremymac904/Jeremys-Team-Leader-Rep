@@ -180,7 +180,7 @@ def test_schemas():
 # ------------------------------------------------------------------ synthetic
 def test_synthetic_documents():
     docs = sorted(ROOT.joinpath("examples", "synthetic-documents").glob("*.pdf"))
-    check("synthetic documents exist", len(docs) >= 6, f"{len(docs)} found")
+    check("synthetic documents exist", len(docs) >= 9, f"{len(docs)} found")
     try:
         import pymupdf
     except ImportError:
@@ -210,6 +210,8 @@ def test_extraction():
         "synthetic-loan-estimate.pdf": "loan_estimate",
         "synthetic-mortgage-statement.pdf": "mortgage_statement",
         "synthetic-appraisal-excerpt.pdf": "appraisal",
+        "synthetic-tax-return.pdf": "tax_return",
+        "synthetic-closing-disclosure.pdf": "closing_disclosure",
     }
     base = ROOT / "examples" / "synthetic-documents"
     for filename, want in expected.items():

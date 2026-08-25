@@ -288,6 +288,38 @@ def _hermes_profile():
     return problems
 
 
+@check("document-type skill routing resolves")
+def _skill_routing():
+    """Every skill review.py routes to must actually exist.
+
+    A dangling entry here means the pipeline tells the Team Leader to use a
+    skill that is not installed — which looks like a working handoff and is not.
+    """
+    review = ROOT / "scripts" / "local_ai" / "review.py"
+    if not review.exists():
+        return ["scripts/local_ai/review.py is missing"]
+
+    body = review.read_text(encoding="utf-8")
+    start = body.find("SKILL_FOR_TYPE = {")
+    if start < 0:
+        return ["SKILL_FOR_TYPE not found in review.py"]
+    block = body[start:body.index("}", start)]
+
+    referenced = re.findall(r'"([a-z0-9-]+-review|[a-z0-9-]+-comparison)"', block)
+    installed = {p.parent.name for p in (ROOT / "skills").rglob("SKILL.md")}
+    problems = [f"review.py routes to {name!r} but no such skill exists"
+                for name in sorted(set(referenced)) if name not in installed]
+
+    # Schemas referenced for routing must exist too.
+    schema_start = body.find("SCHEMA_FOR_TYPE = {")
+    if schema_start >= 0:
+        schema_block = body[schema_start:body.index("}", schema_start)]
+        for schema in sorted(set(re.findall(r':\s*"([a-z_]+)"', schema_block))):
+            if not (ROOT / "schemas" / f"{schema}.schema.json").exists():
+                problems.append(f"review.py routes to schema {schema!r} which does not exist")
+    return problems
+
+
 @check("marketing archetypes are documented")
 def _archetypes():
     """Every archetype used in config must exist in the knowledge file.

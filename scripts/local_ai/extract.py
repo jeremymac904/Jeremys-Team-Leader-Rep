@@ -35,29 +35,76 @@ CONFIG = ROOT / "config" / "local-ai.yaml"
 CONFIG_EXAMPLE = ROOT / "config" / "local-ai.example.yaml"
 
 # Signals used to classify a document from its own text.
+#
+# Markers are WEIGHTED because generic words are actively misleading. A Closing
+# Disclosure legitimately contains "seller", "buyer", "earnest money", and
+# "closing date" — the same words a purchase contract has — so unweighted
+# counting produces a tie that resolves by dictionary order. Weighting the
+# near-unique title phrases well above generic terms fixes that.
+#
+#   3 = near-unique to this document type (usually the form's own title)
+#   2 = strong signal
+#   1 = weak / shared with other document types
 DOC_SIGNATURES = [
-    ("paystub", ("earnings statement", "pay stub", "paystub", "pay period", "ytd",
-                 "gross pay", "net pay", "year to date")),
-    ("w2", ("w-2", "wage and tax statement", "form w-2", "social security wages",
-            "medicare wages")),
-    ("tax_return", ("form 1040", "u.s. individual income tax return", "schedule c",
-                    "schedule e", "adjusted gross income", "taxable income")),
-    ("bank_statement", ("account summary", "beginning balance", "ending balance",
-                        "statement period", "deposits and additions", "withdrawals")),
-    ("purchase_contract", ("purchase and sale", "purchase agreement", "earnest money",
-                           "seller", "buyer", "closing date", "contingency")),
-    ("loan_estimate", ("loan estimate", "estimated cash to close", "loan terms",
-                       "projected payments", "closing cost details")),
-    ("closing_disclosure", ("closing disclosure", "cash to close", "loan costs",
-                            "summaries of transactions")),
-    ("mortgage_statement", ("mortgage statement", "principal balance", "escrow balance",
-                            "payment due date", "amount due")),
-    ("appraisal", ("uniform residential appraisal", "appraised value", "comparable sale",
-                   "subject property")),
-    ("insurance", ("declarations page", "policy number", "coverage", "premium",
-                   "dwelling coverage")),
-    ("hoa", ("homeowners association", "hoa", "assessment", "covenants")),
-    ("1099", ("form 1099", "1099-misc", "1099-nec", "nonemployee compensation")),
+    ("closing_disclosure", {
+        "closing disclosure": 3, "summaries of transactions": 3,
+        "calculating cash to close": 3, "disbursement date": 2,
+        "total closing costs": 2, "lender credits": 1, "cash to close": 1,
+        "loan costs": 1,
+    }),
+    ("loan_estimate", {
+        "loan estimate": 3, "estimated cash to close": 3,
+        "closing cost details": 2, "projected payments": 2,
+        "services you can shop for": 2, "loan terms": 1, "cash to close": 1,
+    }),
+    ("paystub", {
+        "earnings statement": 3, "pay stub": 3, "paystub": 3,
+        "year to date": 2, "gross pay": 2, "net pay": 2, "pay period": 2,
+        "ytd": 1, "deductions": 1,
+    }),
+    ("w2", {
+        "wage and tax statement": 3, "form w-2": 3, "w-2": 2,
+        "social security wages": 2, "medicare wages": 2,
+        "federal income tax withheld": 1,
+    }),
+    ("tax_return", {
+        "u.s. individual income tax return": 3, "form 1040": 3,
+        "adjusted gross income": 2, "schedule c": 2, "schedule e": 2,
+        "schedule se": 2, "filing status": 1, "taxable income": 1,
+    }),
+    ("bank_statement", {
+        "account summary": 3, "beginning balance": 3, "ending balance": 3,
+        "statement period": 2, "deposits and additions": 2,
+        "average daily balance": 2, "withdrawals": 1,
+    }),
+    ("purchase_contract", {
+        "purchase and sale": 3, "residential purchase agreement": 3,
+        "purchase agreement": 3, "inspection period": 2,
+        "financing contingency": 2, "appraisal contingency": 2,
+        "purchase price": 2, "earnest money": 1, "closing date": 1,
+        "seller": 1, "buyer": 1,
+    }),
+    ("mortgage_statement", {
+        "mortgage statement": 3, "payment due date": 2,
+        "outstanding principal balance": 2, "principal balance": 2,
+        "escrow balance": 2, "amount due": 1,
+    }),
+    ("appraisal", {
+        "uniform residential appraisal": 3, "appraised value": 3,
+        "comparable sale": 2, "subject property": 2, "gross living area": 2,
+    }),
+    ("insurance", {
+        "declarations page": 3, "dwelling coverage": 3, "policy number": 2,
+        "premium": 1, "coverage": 1,
+    }),
+    ("hoa", {
+        "homeowners association": 3, "covenants": 2, "hoa": 2,
+        "assessment": 1,
+    }),
+    ("1099", {
+        "form 1099": 3, "1099-misc": 3, "1099-nec": 3,
+        "nonemployee compensation": 2,
+    }),
 ]
 
 
@@ -90,25 +137,36 @@ def load_config() -> dict:
 
 
 def classify(text: str) -> tuple[str, str]:
-    """Guess the document type from its text. Returns (type, confidence)."""
+    """Guess the document type from its text. Returns (type, confidence).
+
+    Scores each type by summing the weights of the markers it matches, then
+    requires a clear margin over the runner-up before claiming high confidence.
+    """
     low = (text or "").lower()
     if not low.strip():
         return "unknown", "none"
+
     scores = {}
     for doc_type, markers in DOC_SIGNATURES:
-        hits = sum(1 for m in markers if m in low)
-        if hits:
-            scores[doc_type] = hits
+        score = sum(weight for marker, weight in markers.items() if marker in low)
+        if score:
+            scores[doc_type] = score
     if not scores:
         return "unknown", "none"
-    best = max(scores, key=scores.get)
-    hits = scores[best]
-    runner_up = sorted(scores.values(), reverse=True)
-    ambiguous = len(runner_up) > 1 and runner_up[1] == hits
-    if hits >= 3 and not ambiguous:
+
+    ranked = sorted(scores.items(), key=lambda kv: kv[1], reverse=True)
+    best, best_score = ranked[0]
+    runner_up = ranked[1][1] if len(ranked) > 1 else 0
+    margin = best_score - runner_up
+
+    # A high-weight match is a form title; that plus a clear margin is decisive.
+    if best_score >= 5 and margin >= 2:
         return best, "high"
-    if hits >= 2:
+    if best_score >= 3 and margin >= 1:
         return best, "moderate"
+    if best_score >= 3:
+        # Tied or nearly tied — say so rather than guessing confidently.
+        return best, "low"
     return best, "low"
 
 
